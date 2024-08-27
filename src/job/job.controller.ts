@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { JobService } from './job.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -7,28 +7,37 @@ import { UpdateJobDto } from './dto/update-job.dto';
 export class JobController {
   constructor(private readonly jobService: JobService) {}
 
+   /**
+   * Memanggil semua job
+   */
+  @Get()
+  listJob() {
+    return this.jobService.list();  
+  }
+
+   /**
+   * Membuat job baru
+   */
   @Post()
   create(@Body() createJobDto: CreateJobDto) {
     return this.jobService.create(createJobDto);
   }
 
-  @Get()
-  findAll() {
-    return this.jobService.findAll();
-  }
-
+    /**
+  * memanggil job berdasarkan id
+  */
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.jobService.findOne(+id);
+  getJobById(@Param('id') id: string) {
+    return this.jobService.getJobById(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
-    return this.jobService.update(+id, updateJobDto);
+  /**
+   * Meng-update job
+   */
+  @Put(':id')
+  updateJob(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
+    return this.jobService.update(id, updateJobDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.jobService.remove(+id);
-  }
+  
 }

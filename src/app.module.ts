@@ -93,8 +93,8 @@ import { TeamModule } from './team/team.module';
           entities: [],
           synchronize: configService.get<string>('env') === 'development',
           autoLoadEntities: true,
-          dropSchema:true,
-          logging: true,
+          // dropSchema:true,
+          // logging: true,
           namingStrategy: new SnakeNamingStrategy(),
         };
       },

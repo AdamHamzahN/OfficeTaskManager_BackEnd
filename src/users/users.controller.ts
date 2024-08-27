@@ -8,17 +8,23 @@ import {
   Delete,
   ParseUUIDPipe,
   HttpStatus,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
+  /**
+   * Menambahkan user baru
+   */
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  async createUser(@Body() createUserDto: CreateUserDto) {
     return {
       data: await this.usersService.create(createUserDto),
       statusCode: HttpStatus.CREATED,
@@ -26,8 +32,11 @@ export class UsersController {
     };
   }
 
+  /**
+   * Memanggil semua user
+   */
   @Get()
-  async findAll() {
+  async listUser() {
     const [data, count] = await this.usersService.findAll();
 
     return {
@@ -38,8 +47,11 @@ export class UsersController {
     };
   }
 
+  /**
+   * Memanggil user berdasarkan Id
+   */
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+  async getUserById(@Param('id', ParseUUIDPipe) id: string) {
     return {
       data: await this.usersService.findOne(id),
       statusCode: HttpStatus.OK,
@@ -47,25 +59,32 @@ export class UsersController {
     };
   }
 
-  @Put(':id')
-  async update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateUserDto: UpdateUserDto,
+  /**
+   * Update Passsword User
+   */
+  @Put(':id/password')
+  async updatePassword(
+    @Param('id') id: string,
+    @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
     return {
-      data: await this.usersService.update(id, updateUserDto),
-      statusCode: HttpStatus.OK,
+      data: await this.usersService.updatePassword(id, updatePasswordDto),
+      statusCode: HttpStatus.CREATED,
       message: 'success',
     };
   }
 
-  @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
-    await this.usersService.remove(id);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
-  }
+  // @Put(':id')
+  // async update(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() updateUserDto: UpdateUserDto,
+  // ) {
+  //   return {
+  //     data: await this.usersService.update(id, updateUserDto),
+  //     statusCode: HttpStatus.OK,
+  //     message: 'success',
+  //   };
+  // }
+
 }

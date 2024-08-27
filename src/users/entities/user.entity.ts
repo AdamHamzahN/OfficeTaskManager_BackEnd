@@ -11,11 +11,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
-  BeforeInsert,
-  BeforeUpdate,
 } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid'
-import * as bcrypt from 'bcrypt';
 
 /**
  * Enum untuk status
@@ -51,8 +47,6 @@ export class User {
    */
   @Column({ type: 'uuid' })
   salt: string;
-
-
   /**
    * email Text
    */
@@ -114,15 +108,18 @@ export class User {
   @OneToMany(() => Project, project => project.user)
   project: Project[];
 
+
   //----Trigger-------------------
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashPassword() {
-    if (!this.salt) {
-      // Generate UUID as salt only if salt is not set
-      this.salt = uuidv4();
-    }
-    // Hash password with UUID salt
-    this.password = await bcrypt.hash(this.password, this.salt);
-  }
+  // @BeforeInsert()
+  // @BeforeUpdate()
+  // async hashPasswordBeforeInsert() {
+  //   console.log('Hashing password...');
+  //   if (!this.salt) {
+  //     this.salt = uuidv4();  // Generate salt
+  //     console.log(`Generated salt: ${this.salt}`);
+  //   }
+  //   this.password = await bcrypt.hash(this.password, this.salt);
+  // }
+
+
 }
