@@ -44,14 +44,13 @@ export class Karyawan {
     @Column({
         type: 'enum',
         enum: gender,
-        default: gender.LakiLaki,
     })
     gender: gender;
 
     /**
      * alamat text
      */
-    @Column({type:'text'})
+    @Column({type:'text',nullable:true})
     alamat: string;
 
     

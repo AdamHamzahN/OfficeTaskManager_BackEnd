@@ -1,26 +1,144 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateKaryawanDto } from './dto/create-karyawan.dto';
 import { UpdateKaryawanDto } from './dto/update-karyawan.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Karyawan } from './entities/karyawan.entity';
+import { EntityNotFoundError, Repository } from 'typeorm';
+import { User } from '#/users/entities/user.entity';
+import * as crypto from 'crypto';
+import { Role } from '#/role/entities/role.entity';
+import { Job } from '#/job/entities/job.entity';
+import { EditJobDto } from './dto/edit-job-karyawan.dto';
+import { UpdateStatusKaryawan } from './dto/update-status.dto';
 
 @Injectable()
 export class KaryawanService {
-  create(createKaryawanDto: CreateKaryawanDto) {
-    return 'This action adds a new karyawan';
+  constructor(
+    @InjectRepository(Karyawan)
+    private karyawanRepository: Repository<Karyawan>,
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
+
+    @InjectRepository(Job)
+    private jobRepository: Repository<Job>,
+  ) { }
+  /**
+   * Membuat Karyawan baru beserta User baru
+   */
+  async createKaryawan(createKaryawanDto: CreateKaryawanDto): Promise<Karyawan> {
+    const { username, password, email, nama, nik, gender, job } = createKaryawanDto;
+
+    function hashPassword(password: string, salt: string): string {
+      return crypto.createHmac('sha256', salt)
+        .update(password)
+        .digest('hex');
+    }
+    //Membuat User Baru
+    const salt = crypto.randomBytes(16).toString('hex');
+    const passwordHash = hashPassword(password, salt);
+
+    const user = new User();
+    user.username = username;
+    user.password = passwordHash;
+    user.nama = nama;
+    user.salt = salt;
+    user.email = email;
+    user.role = await this.roleRepository.findOne({ where: { nama: 'karyawan' } });
+    user.salt = salt;
+
+    const savedUser = await this.userRepository.save(user);
+
+    //Membuat Karyawan berdasarkan User yang baru dibuat
+    const karyawan = new Karyawan();
+
+    karyawan.nik = nik;
+    karyawan.gender = gender;
+    karyawan.user = savedUser;
+    karyawan.job = job;
+
+    return this.karyawanRepository.save(karyawan);
   }
 
-  findAll() {
-    return `This action returns all karyawan`;
+  /**
+   * Menampilkan data semua Karyawan
+   */
+  async findAll() {
+    const [result, count] = await this.karyawanRepository.createQueryBuilder('karyawan')
+      .leftJoinAndSelect('karyawan.user', 'user')
+      .leftJoinAndSelect('karyawan.job', 'job')
+      .getManyAndCount();
+    return {
+      result,
+      count,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} karyawan`;
+  /**
+   * Mengambil data karyawan berdasarkan Id (untuk detail karyawan)
+   */
+  async findOne(id: string): Promise<Karyawan> {
+    try {
+      const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
+        .leftJoinAndSelect('karyawan.user', 'user')
+        .leftJoinAndSelect('karyawan.job', 'job')
+        .where('karyawan.id = :id', { id })
+        .getOne();
+
+      if (!karyawan) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.NOT_FOUND,
+            error: 'Data not found',
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return karyawan;
+    } catch (e) {
+      throw e;
+    }
+  }
+  /**
+   * Update Job Karyawan
+   */
+  async updateJob(id: string, editJobDto: EditJobDto): Promise<Karyawan> {
+    const karyawan = await this.karyawanRepository.findOneBy({ id });
+    const job = await this.jobRepository.findOneBy({ id: editJobDto.job });
+    karyawan.job = job;
+    return this.karyawanRepository.save(karyawan);
   }
 
-  update(id: number, updateKaryawanDto: UpdateKaryawanDto) {
-    return `This action updates a #${id} karyawan`;
+  /**
+   * Update Profile Karyawan
+   */
+  async updateProfile(id: string, updateKaryawanDto: UpdateKaryawanDto) {
+    const { email, alamat } = updateKaryawanDto;
+    const karyawan = await this.karyawanRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+
+    if (email) {
+      karyawan.user.email = email;
+    }
+
+    if (alamat) {
+      karyawan.alamat = alamat;
+    }
+
+    await this.karyawanRepository.save(karyawan);
+    return karyawan;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} karyawan`;
+  /**
+     * Update Status Project (available / unavailable)
+     */
+  async updateStatusProject(id: string, updateStatus: UpdateStatusKaryawan) {
+    await this.karyawanRepository.update({ id }, updateStatus);
+    return await this.karyawanRepository.findOne({ where: { id } });
   }
 }

@@ -15,6 +15,7 @@ import { KaryawanModule } from './karyawan/karyawan.module';
 import { ProjectModule } from './project/project.module';
 import { TugasModule } from './tugas/tugas.module';
 import { TeamModule } from './team/team.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -109,6 +110,7 @@ import { TeamModule } from './team/team.module';
     ProjectModule,
     TugasModule,
     TeamModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

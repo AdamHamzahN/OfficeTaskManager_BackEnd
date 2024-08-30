@@ -22,7 +22,6 @@ export class CreateUserDto {
     // @IsNotEmpty()
     role: Role;
 
-    // @IsNotEmpty()
     salt:string;
 
     

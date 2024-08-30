@@ -37,10 +37,9 @@ export class UsersController {
    */
   @Get()
   async listUser() {
-    const [data, count] = await this.usersService.findAll();
-
+    const {data , count } = await this.usersService.findAll();
     return {
-      data,
+      data, 
       count,
       statusCode: HttpStatus.OK,
       message: 'success',
@@ -74,14 +73,11 @@ export class UsersController {
     };
   }
 
-
-  // @Put(':id')
-  // async update(
-  //   @Param('id', ParseUUIDPipe) id: string,
-  //   @Body() updateUserDto: UpdateUserDto,
-  // ) {
+  // @Get(':username/user')
+  // async getUserByUsername(@Param('username') username:string){
+  //   // return await this.usersService.getUserByUsername(username);
   //   return {
-  //     data: await this.usersService.update(id, updateUserDto),
+  //     data: await this.usersService.getUserByUsername(username),
   //     statusCode: HttpStatus.OK,
   //     message: 'success',
   //   };

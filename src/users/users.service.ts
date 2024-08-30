@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { EntityNotFoundError, Repository } from 'typeorm';
@@ -16,20 +16,27 @@ export class UsersService {
 
     @InjectRepository(Role)
     private roleRepository: Repository<Role>
-  ) {}
-  
+  ) { }
+
   public hashPassword(password: string, salt: string): string {
     const hash = crypto.createHmac('sha256', salt)
-                       .update(password)
-                       .digest('hex');
+      .update(password)
+      .digest('hex');
     return hash;
   }
   /**
    * Membuat User Baru
    */
-  async create(createUserDto: CreateUserDto): Promise<User>{
+  async create(createUserDto: CreateUserDto) {
+    /**
+     * Cek apakah username sudah ada
+     */
+    const checkUsername = this.getUserByUsername(createUserDto.username);
+    if(checkUsername ){
+      throw new ConflictException('Username already exists');
+    }
 
-    const salt = crypto.randomBytes(16).toString('hex'); 
+    const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = this.hashPassword(createUserDto.password, salt);
 
     createUserDto.password = hashedPassword;
@@ -56,8 +63,13 @@ export class UsersService {
    * Memanggil Semua User
    * 
    */
-  findAll() {
-    return this.usersRepository.findAndCount();
+  async findAll() {
+    const [data , count] = await this.usersRepository.createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role').getManyAndCount();
+    return {
+      data,
+      count,
+    };
   }
 
   /**
@@ -90,8 +102,8 @@ export class UsersService {
    * Update password user
    * 
    */
-  async updatePassword(id: string,newPassword:UpdatePasswordDto){
-    const salt = crypto.randomBytes(16).toString('hex'); 
+  async updatePassword(id: string, newPassword: UpdatePasswordDto) {
+    const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = this.hashPassword(newPassword.password, salt);
 
     await this.usersRepository.update(id, {
@@ -103,37 +115,20 @@ export class UsersService {
       where: { id: id },
     });
   }
-
-
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    try {
-      await this.usersRepository.findOneOrFail({
-        where: {
-          id,
-        },
-      });
-    } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.NOT_FOUND,
-            error: 'Data not found',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      } else {
-        throw e;
-      }
-    }
-
-    await this.usersRepository.update(id, updateUserDto);
-
-    return this.usersRepository.findOneOrFail({
+  /**
+   * Cek user berdasarkan username
+   */
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const user = await this.usersRepository.findOne({
       where: {
-        id,
+        username: username,
       },
+      relations: ['role'],
     });
+    return user;
   }
-
-  
 }
+
+
+
+

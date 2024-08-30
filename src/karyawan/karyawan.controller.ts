@@ -1,34 +1,80 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseUUIDPipe, Put, HttpException } from '@nestjs/common';
 import { KaryawanService } from './karyawan.service';
 import { CreateKaryawanDto } from './dto/create-karyawan.dto';
 import { UpdateKaryawanDto } from './dto/update-karyawan.dto';
+import { EditJobDto } from './dto/edit-job-karyawan.dto';
+import { UpdateStatusKaryawan } from './dto/update-status.dto';
 
 @Controller('karyawan')
 export class KaryawanController {
-  constructor(private readonly karyawanService: KaryawanService) {}
-
-  @Post()
-  create(@Body() createKaryawanDto: CreateKaryawanDto) {
-    return this.karyawanService.create(createKaryawanDto);
-  }
-
+  constructor(private readonly karyawanService: KaryawanService) { }
+  
+  /**
+   * Memanggil semua karyawan
+   */
   @Get()
-  findAll() {
-    return this.karyawanService.findAll();
+  async findAll() {
+    return await this.karyawanService.findAll();
   }
 
+  /**
+   * Membuat Karyawan Baru
+   */
+  @Post('/tambah')
+  async createKaryawan(@Body() createKaryawanDto: CreateKaryawanDto) {
+    const karyawan = await this.karyawanService.createKaryawan(createKaryawanDto);
+    return {
+      data: karyawan,
+      statusCode: HttpStatus.CREATED,
+      message: 'success',
+    };
+  }
+
+  /**
+   * Memanggil Karyawan berdasarkan Id (untuk detail karyawan)
+   */
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.karyawanService.findOne(+id);
+  async detailKaryawan(@Param('id', ParseUUIDPipe) id: string) {
+    return {
+      data: await this.karyawanService.findOne(id),
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
+  }
+  /**
+   * Update Job Karyawan
+   */
+  @Put(':id/edit-job')
+  async updateJob(@Param('id') id: string, @Body() editJobDto: EditJobDto) {
+    return {
+      data: await this.karyawanService.updateJob(id, editJobDto),
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateKaryawanDto: UpdateKaryawanDto) {
-    return this.karyawanService.update(+id, updateKaryawanDto);
+  /**
+   * Update Profile Karyawan
+   */
+  @Put(':id/edit-profile')
+  async updateProfileKaryawan(@Param('id') id: string, @Body() updateKaryawanDto: UpdateKaryawanDto) {
+    return {
+      data: await this.karyawanService.updateProfile(id, updateKaryawanDto),
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
+  }
+  
+  /**
+   * Update Status Project (available / unavailable)
+   */
+  @Put(':id/edit-status-project')
+  async UpdateStatusProject(@Param('id') id: string, @Body() updateStatus:UpdateStatusKaryawan){
+    return {
+      data: await this.karyawanService.updateStatusProject(id, updateStatus),
+      statusCode: HttpStatus.OK,
+      message:'success',
+    }
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.karyawanService.remove(+id);
-  }
 }
