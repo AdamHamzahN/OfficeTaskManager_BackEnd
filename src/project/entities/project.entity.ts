@@ -4,6 +4,13 @@ import { User } from "#/users/entities/user.entity";
 import { date } from "joi";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+export enum statusProject{
+    pending = 'pending',
+    on_progress = 'on progress',
+    done = 'done',
+    approved = 'approved',
+    redo = 'redo'
+} 
 @Entity()
 export class Project {
     /**
@@ -59,10 +66,10 @@ export class Project {
      */
     @Column({
         type: 'enum',
-        enum: ['pending', 'on progress', 'done', 'redo', 'approved'],
-        default: 'pending'
+        enum: statusProject,
+        default: statusProject.pending
     })
-    status:'pending'| 'on progress'| 'done'| 'redo'| 'approved';
+    status:statusProject;
 
     @CreateDateColumn({
         type: 'timestamp with time zone',

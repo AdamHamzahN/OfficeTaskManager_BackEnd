@@ -6,10 +6,11 @@ import { Karyawan } from './entities/karyawan.entity';
 import { User } from '#/users/entities/user.entity';
 import { Role } from '#/role/entities/role.entity';
 import { Job } from '#/job/entities/job.entity';
+import { UsersService } from '#/users/users.service';
 
 @Module({
   imports:[TypeOrmModule.forFeature([Karyawan,User,Role,Job])],
   controllers: [KaryawanController],
-  providers: [KaryawanService]
+  providers: [KaryawanService,UsersService]
 })
 export class KaryawanModule {}

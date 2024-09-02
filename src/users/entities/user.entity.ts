@@ -107,19 +107,4 @@ export class User {
    */
   @OneToMany(() => Project, project => project.user)
   project: Project[];
-
-
-  //----Trigger-------------------
-  // @BeforeInsert()
-  // @BeforeUpdate()
-  // async hashPasswordBeforeInsert() {
-  //   console.log('Hashing password...');
-  //   if (!this.salt) {
-  //     this.salt = uuidv4();  // Generate salt
-  //     console.log(`Generated salt: ${this.salt}`);
-  //   }
-  //   this.password = await bcrypt.hash(this.password, this.salt);
-  // }
-
-
 }

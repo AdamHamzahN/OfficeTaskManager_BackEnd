@@ -34,7 +34,7 @@ export class CreateKaryawanDto {
     @IsNotEmpty({message:'Jenis Kelamin Tidak boleh kosong'})
     gender: gender;
 
-    @IsOptional()
+    @IsOptional()   
     job: Job;
     // @IsOptional()
     // alamat: string;

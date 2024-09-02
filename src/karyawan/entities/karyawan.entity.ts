@@ -5,13 +5,13 @@ import { User } from "#/users/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export enum gender{
-    LakiLaki = 'laki-laki',
-    Perempuan = 'perempuan'
+    lakiLaki = 'laki-laki',
+    perempuan = 'perempuan'
 } 
 
 export enum statusProject{
-    Available = 'available',
-    Unavailable = 'unavailable',
+    available = 'available',
+    unavailable = 'unavailable',
 }
 
 @Entity()
@@ -34,7 +34,7 @@ export class Karyawan {
     @Column({
         type: 'enum',
         enum: statusProject,
-        default: statusProject.Available,
+        default: statusProject.available,
     })
     status_project: statusProject;
 

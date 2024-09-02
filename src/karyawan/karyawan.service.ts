@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateKaryawanDto } from './dto/create-karyawan.dto';
 import { UpdateKaryawanDto } from './dto/update-karyawan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,8 @@ import { Role } from '#/role/entities/role.entity';
 import { Job } from '#/job/entities/job.entity';
 import { EditJobDto } from './dto/edit-job-karyawan.dto';
 import { UpdateStatusKaryawan } from './dto/update-status.dto';
+import { UsersService } from '#/users/users.service';
+
 
 @Injectable()
 export class KaryawanService {
@@ -25,21 +27,22 @@ export class KaryawanService {
 
     @InjectRepository(Job)
     private jobRepository: Repository<Job>,
+
+    private userService: UsersService,
+
   ) { }
   /**
    * Membuat Karyawan baru beserta User baru
    */
   async createKaryawan(createKaryawanDto: CreateKaryawanDto): Promise<Karyawan> {
     const { username, password, email, nama, nik, gender, job } = createKaryawanDto;
-
-    function hashPassword(password: string, salt: string): string {
-      return crypto.createHmac('sha256', salt)
-        .update(password)
-        .digest('hex');
+    const checkUsername = await this.userService.getUserByUsername(createKaryawanDto.username);
+    if (checkUsername) {
+      throw new ConflictException('Username already exists');
     }
     //Membuat User Baru
     const salt = crypto.randomBytes(16).toString('hex');
-    const passwordHash = hashPassword(password, salt);
+    const passwordHash = this.userService.hashPassword(password, salt);
 
     const user = new User();
     user.username = username;
@@ -54,7 +57,6 @@ export class KaryawanService {
 
     //Membuat Karyawan berdasarkan User yang baru dibuat
     const karyawan = new Karyawan();
-
     karyawan.nik = nik;
     karyawan.gender = gender;
     karyawan.user = savedUser;
@@ -142,3 +144,4 @@ export class KaryawanService {
     return await this.karyawanRepository.findOne({ where: { id } });
   }
 }
+
