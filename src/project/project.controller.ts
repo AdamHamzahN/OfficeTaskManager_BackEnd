@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, HttpStatus, Put } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UpdateStatusProject } from './dto/update-status.dto';
 import { UploadHasilProject } from './dto/upload-bukti.dto';
+import { UpdateNamaTeamDto } from './dto/update-nama-team.dto';
 
 @Controller('project')
 export class ProjectController {
@@ -51,6 +51,9 @@ export class ProjectController {
     };
   }
 
+  /**
+   * Memanggil team berdasarkan Id
+   */
   @Get(':id')
   async getProjectById(@Param('id') id: string) {
     const data = await this.projectService.findOne(id);
@@ -63,7 +66,7 @@ export class ProjectController {
   /**
    * Update Status Project 
    */
-  @Put(':id')
+  @Put(':id/update-status-project')
   async updateStatusProject(@Param('id') id: string, @Body() updateStatusProjectDto: UpdateStatusProject) {
     const data = await this.projectService.updateStatus(id, updateStatusProjectDto);
     return {
@@ -100,10 +103,24 @@ export class ProjectController {
     @Body() uploadFileHasil: UploadHasilProject,
     @UploadedFile() file: Express.Multer.File) {
     const data = await this.projectService.uploadHasil(id, uploadFileHasil, file);
-    return{
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    }
+  }
+
+  /**
+   * Update Nama Team
+   */
+  @Put(':id/update-nama-team')
+  async updateNamaTeam(@Param('id') id: string, @Body() updateNamaTeam: UpdateNamaTeamDto) {
+    const data = await this.projectService.updateNamaTeam(id, updateNamaTeam);
+    return {
       data,
       statusCode: HttpStatus.OK,
       message: 'success',
     }
   }
 }
+

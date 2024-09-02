@@ -44,7 +44,7 @@ export class UsersService {
 
     createUserDto.password = hashedPassword;
     if (!createUserDto.role) {
-      const defaultRole = await this.roleRepository.findOne({ where: { id: '49b88cc3-de8d-4e80-8bec-ffe8a79b1cff' } });
+      const defaultRole = await this.roleRepository.findOne({ where: { nama: 'Team Lead' } });
       if (defaultRole) {
         createUserDto.role = defaultRole;
       } else {

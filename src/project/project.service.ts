@@ -8,6 +8,7 @@ import { UpdateStatusProject } from './dto/update-status.dto';
 import { UploadHasilProject } from './dto/upload-bukti.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { UpdateNamaTeamDto } from './dto/update-nama-team.dto';
 
 @Injectable()
 export class ProjectService {
@@ -35,6 +36,9 @@ export class ProjectService {
     return await this.projectRepository.save(project);
   }
 
+  /**
+   * Memanggil semua project
+   */
   async findAll() {
     const [data, count] = await this.projectRepository.createQueryBuilder('project')
       .leftJoinAndSelect('project.user', 'user').getManyAndCount();
@@ -44,37 +48,41 @@ export class ProjectService {
     };
   }
 
+  /**
+   * Memanggil project berdasarkan Id
+   */
   async findOne(id: string) {
-    return await this.projectRepository.findOneOrFail({
-      where: {
-        id,
-      },
-    });
+    const project = await this.projectRepository.createQueryBuilder('project')
+      .leftJoinAndSelect('project.user', 'user')
+      .where('project.id = :id', { id })
+      .getOne();
 
+    return project;
   }
 
+
+  /**
+   * Update Status Project
+   */
   async updateStatus(id: string, updateStatusProject: UpdateStatusProject) {
     const project = await this.projectRepository.findOneBy({ id });
-    // const job = await this.jobRepository.findOneBy({ id: editJobDto.job });
     project.status = updateStatusProject.status_project;
 
     return this.projectRepository.save(project);
   }
 
-
+  /**
+   * Upload File Hasil Project
+   */
   async uploadHasil(id: string, uploadHasilProject: UploadHasilProject, file: Express.Multer.File) {
     const project = await this.projectRepository.findOneBy({ id });
     if (uploadHasilProject != null) {
       if (project.file_hasil_project != null) {
         const oldFilePath = path.resolve(project.file_hasil_project);
-        try {
-          if (fs.existsSync(oldFilePath)) {
-            fs.unlinkSync(oldFilePath);
-          }
-        } catch (err) {
-          console.error('Error while deleting old file:', err);
-          throw new Error('Could not delete old file');
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
         }
+        //Buat file baru
         project.file_hasil_project = file.path;
       } else {
         // Buat file baru
@@ -83,6 +91,16 @@ export class ProjectService {
       // Simpan perubahan ke database
       return this.projectRepository.save(project);
     }
+  }
+
+  /**
+   * Update Nama Team
+   */
+  async updateNamaTeam(id:string,updateNamaTeam : UpdateNamaTeamDto){
+    const project = await this.projectRepository.findOneBy({ id });
+    project.nama_team = updateNamaTeam.nama_team;
+
+    return this.projectRepository.save(project)
   }
 
 }

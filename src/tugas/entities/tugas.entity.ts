@@ -25,7 +25,7 @@ export class Tugas {
     /**
      * note Text
      */
-    @Column({ type: 'text' })
+    @Column({ type: 'text' ,nullable:true})
     note: string;
 
     /**
@@ -43,7 +43,7 @@ export class Tugas {
     /**
      * file_bukti text
      */
-    @Column({ type: 'text' })
+    @Column({ type: 'text' ,nullable:true})
     file_bukti: string;
 
     /**
