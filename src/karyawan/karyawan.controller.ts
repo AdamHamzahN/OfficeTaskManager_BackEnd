@@ -4,7 +4,30 @@ import { CreateKaryawanDto } from './dto/create-karyawan.dto';
 import { UpdateKaryawanDto } from './dto/update-karyawan.dto';
 import { EditJobDto } from './dto/edit-job-karyawan.dto';
 import { UpdateStatusKaryawan } from './dto/update-status.dto';
-
+import { UpdateStatusKeaktifan } from '#/users/dto/update-status-keaktifan.dto';
+/**
+ * Memanggil semua karyawan
+ * url: https://localhost:3222/karyawan
+ * 
+ * Menambah data karyawan baru 
+ * url: https://localhost:3222/karyawan/tambah
+ * 
+ * Menampilkan data karyawan berdasarkan Id (detail Karyawan)
+ * url: https://localhost:3222/karyawan/:id/detail
+ * 
+ * Meng update job karyawan
+ * url: https://localhost:3222/karyawan/:id/update-job
+ * 
+ * Meng update profile
+ * url: https://localhost:3222/karyawan/:id/update-profile
+ * 
+ * Meng update status project karyawan (available | unavailable)
+ * url: https://localhost:3222/karyawan/:id/update-status-project
+ * 
+ * Meng update status keaktifan (active / inactive)
+ * url: https://localhost:3222/karyawan/:id/update-status-keaktifan
+ * 
+ */
 @Controller('karyawan')
 export class KaryawanController {
   constructor(private readonly karyawanService: KaryawanService) { }
@@ -20,7 +43,7 @@ export class KaryawanController {
   /**
    * Membuat Karyawan Baru
    */
-  @Post('/tambah')
+  @Post('tambah')
   async createKaryawan(@Body() createKaryawanDto: CreateKaryawanDto) {
     const karyawan = await this.karyawanService.createKaryawan(createKaryawanDto);
     return {
@@ -44,7 +67,7 @@ export class KaryawanController {
   /**
    * Update Job Karyawan
    */
-  @Put(':id/edit-job')
+  @Put(':id/update-job')
   async updateJob(@Param('id') id: string, @Body() editJobDto: EditJobDto) {
     return {
       data: await this.karyawanService.updateJob(id, editJobDto),
@@ -56,7 +79,7 @@ export class KaryawanController {
   /**
    * Update Profile Karyawan
    */
-  @Put(':id/edit-profile')
+  @Put(':id/update-profile')
   async updateProfileKaryawan(@Param('id') id: string, @Body() updateKaryawanDto: UpdateKaryawanDto) {
     return {
       data: await this.karyawanService.updateProfile(id, updateKaryawanDto),
@@ -68,10 +91,22 @@ export class KaryawanController {
   /**
    * Update Status Project (available / unavailable)
    */
-  @Put(':id/edit-status-project')
+  @Put(':id/update-status-project')
   async UpdateStatusProject(@Param('id') id: string, @Body() updateStatus:UpdateStatusKaryawan){
     return {
       data: await this.karyawanService.updateStatusProject(id, updateStatus),
+      statusCode: HttpStatus.OK,
+      message:'success',
+    }
+  }
+
+  /**
+   * Update Status Keaktifan (active / inactive)
+   */
+  @Put(':id/update-status-karyawan')
+  async UpdateStatusKaryawan(@Param('id') id: string, @Body() status:UpdateStatusKeaktifan){
+    return {
+      data: await this.karyawanService.updateStatusKaryawan(id, status),
       statusCode: HttpStatus.OK,
       message:'success',
     }

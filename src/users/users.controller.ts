@@ -12,8 +12,31 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UpdatePasswordDto } from './dto/update-password.dto';
+import { SuperAdminUpdatePasswordDto } from './dto/super-admin-update-password.dto';
+import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
+import { UpdateStatusKeaktifan } from './dto/update-status-keaktifan.dto';
+/**
+ * Menambah User Baru (Hanya untuk Super Admin)
+ * url: http://localhost:3222/users/tambah
+ * 
+ * Memanggil Semua User
+ * url: http://localhost:3222/users
+ * 
+ * Memanggil User Berdasarkan Id (untuk detail)
+ * url: http://localhost:3222/users/:id
+ * 
+ * Super Admin Update Password Team Lead atau Karyawan (Hanya untuk Super Admin)
+ * url: http://localhost:3222/users/:id/super-admin-update-password
+ * 
+ * User Update Password nya sendiri (Semua Role)
+ * url: http://localhost:3222/users/:id/update-password
+ * 
+ * Memanggil Semua Team Lead (Hanya untuk Super Admin)
+ * url: http://localhost:3222/users/team-lead
+ * 
+ * Update Status Keaktifan User
+ * url: http://localhost:3222/users/:id/update-status-keaktifan
+ */
 
 
 @Controller('users')
@@ -23,10 +46,10 @@ export class UsersController {
   /**
    * Menambahkan user baru
    */
-  @Post()
-  async createUser(@Body() createUserDto: CreateUserDto) {
+  @Post('tambah')
+  async createTeamLead(@Body() createUserDto: CreateUserDto) {
     return {
-      data: await this.usersService.create(createUserDto),
+      data: await this.usersService.createTeamLead(createUserDto),
       statusCode: HttpStatus.CREATED,
       message: 'success',
     };
@@ -37,9 +60,9 @@ export class UsersController {
    */
   @Get()
   async listUser() {
-    const {data , count } = await this.usersService.findAll();
+    const { data, count } = await this.usersService.findAll();
     return {
-      data, 
+      data,
       count,
       statusCode: HttpStatus.OK,
       message: 'success',
@@ -49,7 +72,7 @@ export class UsersController {
   /**
    * Memanggil user berdasarkan Id
    */
-  @Get(':id')
+  @Get(':id/detail')
   async getUserById(@Param('id', ParseUUIDPipe) id: string) {
     return {
       data: await this.usersService.findOne(id),
@@ -59,28 +82,59 @@ export class UsersController {
   }
 
   /**
-   * Update Passsword User
+   * Super Admin Update Passsword User
    */
-  @Put(':id/password')
-  async updatePassword(
+  @Put(':id/super-admin-update-password')
+  async superAdminUpdatePassword(
     @Param('id') id: string,
-    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Body() superAdminUpdatePasswordDto: SuperAdminUpdatePasswordDto,
   ) {
     return {
-      data: await this.usersService.updatePassword(id, updatePasswordDto),
+      data: await this.usersService.superAdminUpdatePassword(id, superAdminUpdatePasswordDto),
       statusCode: HttpStatus.CREATED,
       message: 'success',
     };
   }
 
-  // @Get(':username/user')
-  // async getUserByUsername(@Param('username') username:string){
-  //   // return await this.usersService.getUserByUsername(username);
+  /**
+   * User Update Password
+   */
+  @Put(':id/update-password')
+  async updatePasswordUser(@Param('id') id: string, @Body() updatePasswordUserDto: UpdatePasswordUserDto) {
+    const data = await this.usersService.updatePasswordUser(id, updatePasswordUserDto);
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
+  }
+
+  /**
+   * Memanggil role team lead
+   */
+  @Get('team-lead')
+  async getTeamLead() {
+    return {
+      data: await this.usersService.findTeamLead(),
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
+  }
+
+  // @Get('karyawan')
+  // async getKaryawan() {
   //   return {
-  //     data: await this.usersService.getUserByUsername(username),
+  //     data: await this.usersService.findKaryawan(),
   //     statusCode: HttpStatus.OK,
   //     message: 'success',
-  //   };
+  //   }
   // }
 
+  /**
+   * Update Status Keaktifan User
+   */
+  @Put(':id/update-status-keaktifan')
+  async updateStatusKeaktifan(@Param('id') id:string,@Body()updateStatusKeaktifan:UpdateStatusKeaktifan){
+    return this.usersService.updateStatusKeaktifan(id,updateStatusKeaktifan);
+  }
 }

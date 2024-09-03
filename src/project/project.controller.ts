@@ -54,7 +54,7 @@ export class ProjectController {
   /**
    * Memanggil team berdasarkan Id
    */
-  @Get(':id')
+  @Get(':id/detail-project')
   async getProjectById(@Param('id') id: string) {
     const data = await this.projectService.findOne(id);
     return {
@@ -121,6 +121,31 @@ export class ProjectController {
       statusCode: HttpStatus.OK,
       message: 'success',
     }
+  }
+
+  /**
+   * Ambil 3 Project Update Terbaru
+   */
+  @Get('update-terbaru')
+  async updateProjectTerbaru(){
+    return await this.projectService.getProjectTerbaru();
+  }
+
+  @Get('count-onprogress')
+  async getHitungProjectDalamProses(){
+    const {count} = await this.projectService.getProjectDalamProses();
+    return count;
+  }
+
+  @Get('data-onprogress')
+  async getDataProjectDalamProses(){
+    const {data} = await this.projectService.getProjectDalamProses();
+    return data;
+  }
+
+  @Get('count-approved')
+  async getProjectSelesai(){
+    return await this.projectService.getProjectSelesai();
   }
 }
 

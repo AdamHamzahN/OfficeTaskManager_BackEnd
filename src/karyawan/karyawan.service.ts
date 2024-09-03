@@ -11,6 +11,7 @@ import { Job } from '#/job/entities/job.entity';
 import { EditJobDto } from './dto/edit-job-karyawan.dto';
 import { UpdateStatusKaryawan } from './dto/update-status.dto';
 import { UsersService } from '#/users/users.service';
+import { UpdateStatusKeaktifan } from '#/users/dto/update-status-keaktifan.dto';
 
 
 @Injectable()
@@ -30,12 +31,15 @@ export class KaryawanService {
 
     private userService: UsersService,
 
+
   ) { }
   /**
    * Membuat Karyawan baru beserta User baru
    */
   async createKaryawan(createKaryawanDto: CreateKaryawanDto): Promise<Karyawan> {
-    const { username, password, email, nama, nik, gender, job } = createKaryawanDto;
+    const { username, email, nama, nik, gender, job } = createKaryawanDto;
+    createKaryawanDto.password = 'karyawan1234'; 
+    const password = createKaryawanDto.password;
     const checkUsername = await this.userService.getUserByUsername(createKaryawanDto.username);
     if (checkUsername) {
       throw new ConflictException('Username already exists');
@@ -44,7 +48,7 @@ export class KaryawanService {
     const salt = crypto.randomBytes(16).toString('hex');
     const passwordHash = this.userService.hashPassword(password, salt);
 
-    const user = new User();
+    const user = new User();  
     user.username = username;
     user.password = passwordHash;
     user.nama = nama;
@@ -118,30 +122,42 @@ export class KaryawanService {
    * Update Profile Karyawan
    */
   async updateProfile(id: string, updateKaryawanDto: UpdateKaryawanDto) {
-    const { email, alamat } = updateKaryawanDto;
+    const { alamat } = updateKaryawanDto;
     const karyawan = await this.karyawanRepository.findOne({
       where: { id },
       relations: ['user'],
     });
-
-    if (email) {
-      karyawan.user.email = email;
-    }
-
-    if (alamat) {
-      karyawan.alamat = alamat;
-    }
-
+    karyawan.alamat = alamat;
     await this.karyawanRepository.save(karyawan);
     return karyawan;
   }
 
   /**
-     * Update Status Project (available / unavailable)
-     */
+    * Update Status Project (available / unavailable)
+    */
   async updateStatusProject(id: string, updateStatus: UpdateStatusKaryawan) {
     await this.karyawanRepository.update({ id }, updateStatus);
     return await this.karyawanRepository.findOne({ where: { id } });
   }
+
+  /**
+   * Update Status Keaktifan (active / inactive)
+   */
+  async updateStatusKaryawan(id: string, status: UpdateStatusKeaktifan) {
+
+    // Ambil id_user dari karyawan
+    const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
+      .leftJoinAndSelect('karyawan.user', 'user')
+      .where('karyawan.id = :id', { id })
+      .getOne();
+
+    const userId = karyawan.user.id;
+    await this.userRepository.update(userId, status);
+    const updatedKaryawan = await this.karyawanRepository.findOne({ where: { id: id }, relations: ['user'] });
+
+    return updatedKaryawan;
+  }
+
+
 }
 

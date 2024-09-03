@@ -92,7 +92,7 @@ export class User {
   /**
    * Relasi ke role 
    */
-  @ManyToOne(() => Role, role => role.id, { nullable: true })
+  @ManyToOne(() => Role, role => role.id, { nullable: false })
   @JoinColumn({ name: 'id_role' })
   role: Role;
 

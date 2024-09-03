@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, BadRequestException, UploadedFile, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, BadRequestException, UploadedFile, HttpStatus, Put } from '@nestjs/common';
 import { TugasService } from './tugas.service';
 import { CreateTugasDto } from './dto/create-tugas.dto';
-import { UpdateTugasDto } from './dto/update-tugas.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
+import { UploadFileBukti } from './dto/upload-file-bukti.dto';
 
 @Controller('tugas')
 export class TugasController {
-  constructor(private readonly tugasService: TugasService) { }
+  constructor(private readonly tugasService: TugasService
 
+  ) {}
 
+  /**
+   * Tambah tugas
+   */
   @Post('tambah')
   @UseInterceptors(FileInterceptor('file_tugas', {
     storage: diskStorage({
@@ -36,7 +41,7 @@ export class TugasController {
       }
     }
   }))
-  async create(@Body() createTugasDto: CreateTugasDto, @UploadedFile() file: Express.Multer.File) {
+  async createTugas(@Body() createTugasDto: CreateTugasDto, @UploadedFile() file: Express.Multer.File) {
     try {
       const data = await this.tugasService.create(createTugasDto, file);
       return {
@@ -47,9 +52,11 @@ export class TugasController {
     } catch (e) {
       return e;
     }
-}
+  }
 
-
+  /**
+   * Memanggil semua tugas
+   */
   @Get()
   async listTugas() {
     const { data, count } = await this.tugasService.findAll();
@@ -61,18 +68,64 @@ export class TugasController {
     };
   }
 
+  /**
+   * Memanggil tugas berdasarkan Id
+   */
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tugasService.findOne(+id);
+  async getTugasById(@Param('id') id: string) {
+    const data = await this.tugasService.findOne(id);
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTugasDto: UpdateTugasDto) {
-    return this.tugasService.update(+id, updateTugasDto);
+  /**
+   * Update Status Tugas
+   */
+  @Put(':id/update-status-tugas')
+  async updateStatusProject(@Param('id') id: string, @Body() updateStatusTugasDto: UpdateStatusTugasDto) {
+    const data = await this.tugasService.updateStatusTugas(id, updateStatusTugasDto);
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tugasService.remove(+id);
+  /**
+   * Upload File Bukti hasil pengerjaan tugas
+   */
+  @Put(':id/upload-file-bukti')
+  @UseInterceptors(FileInterceptor('file_bukti', {
+    storage: diskStorage({
+      destination: './uploads/tugas/file_bukti',
+      filename: (req, file, cb) => {
+        const filename = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `${filename}-${file.originalname}`);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      const maxSize = 2 * 1024 * 1024; // maximal file 2 MB
+      if (file.mimetype !== 'application/pdf') {
+        cb(new BadRequestException('Hanya File Pdf saja yang diizinkan'), false);
+      } else if (file.size > maxSize) {
+        cb(new BadRequestException('File harus dibawah 2 MB'), false);
+      } else {
+        cb(null, true);
+      }
+    }
+  }))
+  async uploadFileHasil(@Param('id') id: string,
+    @Body() uploadFileBukti : UploadFileBukti,
+    @UploadedFile() file: Express.Multer.File) {
+    const data = await this.tugasService.uploadFileBukti(id, uploadFileBukti, file);
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    }
   }
+
 }

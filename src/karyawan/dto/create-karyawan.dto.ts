@@ -7,10 +7,7 @@ export class CreateKaryawanDto {
     @IsNotEmpty({message:'Username  tidak boleh kosong'})
     username: string;
 
-    @MinLength(6)
-    @MaxLength(20)
-    @IsNotEmpty({message:'Password tidak boleh kosong'})
-    password: string;
+    password?: string;
 
     @IsNotEmpty({message:'Email tidak boleh kosong'})
     @IsEmail()

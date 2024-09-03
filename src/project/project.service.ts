@@ -103,4 +103,36 @@ export class ProjectService {
     return this.projectRepository.save(project)
   }
 
+  /**
+   * 3 update project terbaru
+   */
+  async getProjectTerbaru()  {
+    return this.projectRepository.find({
+      order: {
+        created_at: 'DESC',
+      },
+      take: 3,
+    });
+  }
+
+  async getProjectDalamProses() {
+    const [data,count] = await this.projectRepository
+      .createQueryBuilder('project')
+      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on progress','done'] })
+      .getManyAndCount();
+    
+    return {data , count};
+  }
+  
+  async getProjectSelesai() {
+    const data = await this.projectRepository
+      .createQueryBuilder('project')
+      .where('project.status = :status', { status: 'approved' })
+      .getCount();
+    return data;
+  }
+
+
+  
+
 }

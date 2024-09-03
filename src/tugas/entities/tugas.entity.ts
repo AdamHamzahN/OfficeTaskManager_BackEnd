@@ -2,6 +2,13 @@ import { Karyawan } from "#/karyawan/entities/karyawan.entity";
 import { Project } from "#/project/entities/project.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+export enum statusTugas {
+    pending= 'pending',
+    onProgress = 'on progress',
+    done = 'done',
+    approved = 'approved',
+    redo = 'redo'
+}
 @Entity()
 export class Tugas {
     /**
@@ -51,10 +58,10 @@ export class Tugas {
      */
     @Column({
         type: 'enum',
-        enum: ['pending', 'on progress', 'done', 'approved', 'redo'],
-        default: 'pending',
+        enum: statusTugas,
+        default: statusTugas.pending,
     })
-    status: 'pending' | 'on progress' | 'done' | 'approved' | 'redo';
+    status: statusTugas;
 
     
     @CreateDateColumn({
