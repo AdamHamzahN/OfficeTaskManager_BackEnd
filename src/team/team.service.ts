@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Team } from './entities/team.entity';
 import { Repository } from 'typeorm';
 import { Karyawan } from '#/karyawan/entities/karyawan.entity';
-import { Project } from '#/project/entities/project.entity';
+import { Project, statusProject } from '#/project/entities/project.entity';
+
 
 @Injectable()
 export class TeamService {
@@ -18,54 +18,73 @@ export class TeamService {
 
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
-  ) {}
+  ) { }
 
-  async create(createTeamDto: CreateTeamDto): Promise<Team> {
-    const { id_karyawan, id_project } = createTeamDto;
-    // Check Karyawan
-    const karyawanExists = await this.karyawanRepository.findOneBy({ id: id_karyawan.id });
-    if (!karyawanExists) {
-        throw new NotFoundException(`Karyawan with ID ${id_karyawan.id} not found`);
+  async create(createTeamDto: CreateTeamDto) {
+    // Check if Team with the same karyawan and project already exists
+    const existingTeam = await this.teamRepository.createQueryBuilder('team')
+      .leftJoinAndSelect('team.karyawan', 'karyawan')
+      .leftJoinAndSelect('team.project', 'project')
+      .where('karyawan.id = :karyawanId', { karyawanId: createTeamDto.id_karyawan })
+      .andWhere('project.id = :projectId', { projectId: createTeamDto.id_project })
+      .getOne();
+
+
+    // jika karyawan sudah berada di team tersebut
+    if (existingTeam) {
+      throw new ConflictException(`Karyawan ini sudah menjadi anggota di ${existingTeam.project.nama_team}`);
     }
-    // Check Project
-    const projectExists = await this.projectRepository.findOneBy({ id: id_project.id });
-    if (!projectExists) {
-        throw new NotFoundException(`Project with ID ${id_project.id} not found`);
-    }
+
     // Buat Team Baru
     const newTeam = this.teamRepository.create({
-        karyawan: karyawanExists,
-        project: projectExists
+      karyawan: createTeamDto.id_karyawan,
+      project: createTeamDto.id_project
     });
+    
     return this.teamRepository.save(newTeam);
-}
+
+  }
+
 
   async findAll() {
-    const [data, count] = await this.teamRepository.createQueryBuilder('team')
-    .leftJoinAndSelect('team.karyawan', 'karyawan')
-    .leftJoinAndSelect('team.project','project')
-    .getManyAndCount();
-  return {
-    data,
-    count,
-  };
+    return await this.teamRepository.createQueryBuilder('team')
+      .leftJoinAndSelect('team.karyawan', 'karyawan')
+      .leftJoinAndSelect('team.project', 'project')
+      .getMany();
   }
 
   async findOne(id: string) {
     const team = await this.teamRepository.createQueryBuilder('team')
       .leftJoinAndSelect('team.karyawan', 'karyawan')
-      .leftJoinAndSelect('team.project','project')
+      .leftJoinAndSelect('team.project', 'project')
       .where('team.id = :id', { id })
       .getOne();
 
     return team;
   }
 
-  update(id: number, updateTeamDto: UpdateTeamDto) {
-    return `This action updates a #${id} team`;
+  async projectKaryawan(id: string) {
+    return await this.teamRepository.createQueryBuilder('team')
+      .leftJoinAndSelect('team.karyawan', 'karyawan')
+      .leftJoinAndSelect('team.project', 'project')
+      .where('karyawan.id = :id', { id })
+      .andWhere('project.status != :status', { status: statusProject.approved })
+      .getMany();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} team`;
+  async history(id: string) {
+    const data = await this.teamRepository.createQueryBuilder('team')
+      .leftJoinAndSelect('team.karyawan', 'karyawan')
+      .leftJoinAndSelect('team.project', 'project')
+      .leftJoinAndSelect('project.tugas', 'tugas')
+      .where('karyawan.id = :id', { id })
+      .andWhere('tugas.status IN (:...statuses)', { statuses: ['done', 'redo'] })
+      .getMany();
+
+    return data;
   }
+
+
+
+
 }

@@ -31,11 +31,12 @@ export class UsersService {
   /**
    * Membuat User Baru
    */
-  async createTeamLead(createUserDto: CreateUserDto) {
+  async createTeam(createUserDto: CreateUserDto) {
     /**
      * Cek apakah username sudah ada
      */
-    const checkUsername = this.getUserByUsername(createUserDto.username);
+    const checkUsername = await this.getUserByUsername(createUserDto.username);
+    
     if (checkUsername) {
       throw new ConflictException('Username already exists');
     }
@@ -123,7 +124,7 @@ export class UsersService {
   /**
    * Cek user berdasarkan username
    */
-  async getUserByUsername(username: string): Promise<User | undefined> {
+  async getUserByUsername(username: string) {
     const user = await this.usersRepository.findOne({
       where: {
         username: username,

@@ -1,7 +1,22 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto';
+/**
+ * Menambah Team
+ * url: http://localhost:3222/team/tambah [ok]
+ * 
+ * Memanggil semua team
+ * url: http://localhost:3222/team [ok]
+ * 
+ * Memanggil team berdasarkan Id
+ * url: http://localhost:3222/team/:id/detail [ok]
+ * 
+ * Memanggil team karyawan saat ini (project yang sedang di kerjakan)
+ * url: http://localhost:3222/team/:id/project-karyawan [ok]
+ * 
+ * History
+ * url: http://localhost:3222/team/:id/history [ok]
+ */
 
 @Controller('team')
 export class TeamController {
@@ -19,27 +34,34 @@ export class TeamController {
 
   @Get()
   async listTeam() {
-    const { data, count } = await this.teamService.findAll();
+    const team = await this.teamService.findAll();
     return {
-      data,
-      count,
+      team,
       statusCode: HttpStatus.OK,
       message: 'success',
     };
   }
 
-  @Get(':id')
+  @Get(':id/detail')
   async getTeamById(@Param('id') id: string) {
-    return this.teamService.findOne(id);
+    return await this.teamService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
-    return this.teamService.update(+id, updateTeamDto);
+  @Get(':id/project-karyawan')
+  async projectKaryawan(@Param('id') id: string) {
+    return await this.teamService.projectKaryawan(id);
+
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.teamService.remove(+id);
+  @Get(':id/history')
+  async history(@Param('id') id: string) {
+    try {
+      return await this.teamService.history(id);
+    } catch (e) {
+      return { e, message: 'gagal' }
+    }
   }
 }
+
+
+

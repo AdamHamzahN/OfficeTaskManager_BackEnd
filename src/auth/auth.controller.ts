@@ -1,7 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { AuthService } from './auth.service';
-
+/**
+ * Login
+ * url: http://localhost/3222/auth/login [ok]
+ */
 @Controller('auth')
 export class AuthController {
     constructor(

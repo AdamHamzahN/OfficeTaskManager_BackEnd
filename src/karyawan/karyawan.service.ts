@@ -54,7 +54,7 @@ export class KaryawanService {
     user.nama = nama;
     user.salt = salt;
     user.email = email;
-    user.role = await this.roleRepository.findOne({ where: { nama: 'karyawan' } });
+    user.role = await this.roleRepository.findOne({ where: { nama: 'Karyawan' } });
     user.salt = salt;
 
     const savedUser = await this.userRepository.save(user);

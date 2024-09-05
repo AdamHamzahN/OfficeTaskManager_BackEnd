@@ -96,8 +96,17 @@ export class TugasService {
       }
     } catch (error) {
       console.error('Error saat mengunggah file bukti:', error);
-      throw new Error('Gagal mengunggah file bukti.');
+      throw new Error('Gagal mengunggah file bukti.');  
     }
   }
+
+  async getTugasByKaryawan(id: string) {
+    return await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoinAndSelect('tugas.karyawan', 'karyawan')
+      .leftJoinAndSelect('tugas.project', 'project')
+      .where('karyawan.id = :id', { id })
+      .getMany();
+  }
+
 
 }

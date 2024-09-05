@@ -17,25 +17,25 @@ import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 import { UpdateStatusKeaktifan } from './dto/update-status-keaktifan.dto';
 /**
  * Menambah User Baru (Hanya untuk Super Admin)
- * url: http://localhost:3222/users/tambah
+ * url: http://localhost:3222/users/tambah [ok]
  * 
  * Memanggil Semua User
- * url: http://localhost:3222/users
+ * url: http://localhost:3222/users [ok]
  * 
  * Memanggil User Berdasarkan Id (untuk detail)
- * url: http://localhost:3222/users/:id
+ * url: http://localhost:3222/users/:id/detail [ok]
  * 
  * Super Admin Update Password Team Lead atau Karyawan (Hanya untuk Super Admin)
- * url: http://localhost:3222/users/:id/super-admin-update-password
+ * url: http://localhost:3222/users/:id/super-admin-update-password [ok]
  * 
  * User Update Password nya sendiri (Semua Role)
- * url: http://localhost:3222/users/:id/update-password
+ * url: http://localhost:3222/users/:id/update-password [ok]
  * 
  * Memanggil Semua Team Lead (Hanya untuk Super Admin)
- * url: http://localhost:3222/users/team-lead
+ * url: http://localhost:3222/users/team-lead [ok]
  * 
  * Update Status Keaktifan User
- * url: http://localhost:3222/users/:id/update-status-keaktifan
+ * url: http://localhost:3222/users/:id/update-status-keaktifan [ok]
  */
 
 
@@ -46,10 +46,10 @@ export class UsersController {
   /**
    * Menambahkan user baru
    */
-  @Post('tambah')
+  @Post('tambah-team-lead')
   async createTeamLead(@Body() createUserDto: CreateUserDto) {
     return {
-      data: await this.usersService.createTeamLead(createUserDto),
+      data: await this.usersService.createTeam(createUserDto),
       statusCode: HttpStatus.CREATED,
       message: 'success',
     };
@@ -135,6 +135,11 @@ export class UsersController {
    */
   @Put(':id/update-status-keaktifan')
   async updateStatusKeaktifan(@Param('id') id:string,@Body()updateStatusKeaktifan:UpdateStatusKeaktifan){
-    return this.usersService.updateStatusKeaktifan(id,updateStatusKeaktifan);
+    const data = await this.usersService.updateStatusKeaktifan(id,updateStatusKeaktifan);
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
   }
 }

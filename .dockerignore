@@ -3,6 +3,9 @@
 .gitignore
 .dockerignore
 
+#uploads
+uploads/
+
 # Build dependencies
 dist
 node_modules

@@ -7,25 +7,25 @@ import { UpdateStatusKaryawan } from './dto/update-status.dto';
 import { UpdateStatusKeaktifan } from '#/users/dto/update-status-keaktifan.dto';
 /**
  * Memanggil semua karyawan
- * url: https://localhost:3222/karyawan
+ * url: http://localhost:3222/karyawan [ok]
  * 
  * Menambah data karyawan baru 
- * url: https://localhost:3222/karyawan/tambah
+ * url: http://localhost:3222/karyawan/tambah [ok]
  * 
  * Menampilkan data karyawan berdasarkan Id (detail Karyawan)
- * url: https://localhost:3222/karyawan/:id/detail
+ * url: http://localhost:3222/karyawan/:id/detail [ok]
  * 
  * Meng update job karyawan
- * url: https://localhost:3222/karyawan/:id/update-job
+ * url: http://localhost:3222/karyawan/:id/update-job [ok]
  * 
  * Meng update profile
- * url: https://localhost:3222/karyawan/:id/update-profile
+ * url: http://localhost:3222/karyawan/:id/update-profile [ok]
  * 
  * Meng update status project karyawan (available | unavailable)
- * url: https://localhost:3222/karyawan/:id/update-status-project
+ * url: http://localhost:3222/karyawan/:id/update-status-project [ok]
  * 
- * Meng update status keaktifan (active / inactive)
- * url: https://localhost:3222/karyawan/:id/update-status-keaktifan
+ * Meng update status keaktifan (active | inactive)
+ * url: http://localhost:3222/karyawan/:id/update-status-keaktifan [ok]
  * 
  */
 @Controller('karyawan')
@@ -37,7 +37,11 @@ export class KaryawanController {
    */
   @Get()
   async findAll() {
-    return await this.karyawanService.findAll();
+    return {
+      data : await this.karyawanService.findAll(),
+      statusCode: HttpStatus.OK,
+      message:'success',
+    };
   }
 
   /**
@@ -103,7 +107,7 @@ export class KaryawanController {
   /**
    * Update Status Keaktifan (active / inactive)
    */
-  @Put(':id/update-status-karyawan')
+  @Put(':id/update-status-keaktifan')
   async UpdateStatusKaryawan(@Param('id') id: string, @Body() status:UpdateStatusKeaktifan){
     return {
       data: await this.karyawanService.updateStatusKaryawan(id, status),

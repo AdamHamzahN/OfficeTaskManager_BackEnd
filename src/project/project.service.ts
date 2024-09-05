@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Project } from './entities/project.entity';
+import { Project, statusProject } from './entities/project.entity';
 import { Repository } from 'typeorm';
 import { User } from '#/users/entities/user.entity';
 import { UpdateStatusProject } from './dto/update-status.dto';
@@ -9,6 +9,9 @@ import { UploadHasilProject } from './dto/upload-bukti.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UpdateNamaTeamDto } from './dto/update-nama-team.dto';
+import { KaryawanService } from '#/karyawan/karyawan.service';
+import { Karyawan } from '#/karyawan/entities/karyawan.entity';
+// import { Role } from '#/role/entities/role.entity';
 
 @Injectable()
 export class ProjectService {
@@ -17,7 +20,14 @@ export class ProjectService {
     private projectRepository: Repository<Project>,
 
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+
+    @InjectRepository(Karyawan)
+    private karyawanRepository: Repository<Karyawan>,
+
+    // private karyawanService: KaryawanService,
+
+
   ) { }
 
   /**
@@ -40,11 +50,10 @@ export class ProjectService {
    * Memanggil semua project
    */
   async findAll() {
-    const [data, count] = await this.projectRepository.createQueryBuilder('project')
-      .leftJoinAndSelect('project.user', 'user').getManyAndCount();
+    const data = await this.projectRepository.createQueryBuilder('project')
+      .leftJoinAndSelect('project.user', 'user').getMany();
     return {
-      data,
-      count,
+      data
     };
   }
 
@@ -96,7 +105,7 @@ export class ProjectService {
   /**
    * Update Nama Team
    */
-  async updateNamaTeam(id:string,updateNamaTeam : UpdateNamaTeamDto){
+  async updateNamaTeam(id: string, updateNamaTeam: UpdateNamaTeamDto) {
     const project = await this.projectRepository.findOneBy({ id });
     project.nama_team = updateNamaTeam.nama_team;
 
@@ -106,24 +115,29 @@ export class ProjectService {
   /**
    * 3 update project terbaru
    */
-  async getProjectTerbaru()  {
+  async getProjectTerbaru() {
     return this.projectRepository.find({
       order: {
-        created_at: 'DESC',
+        updated_at: 'DESC',
       },
       take: 3,
     });
   }
-
+  /***
+   * Menghitung project yang sedang dalam proses (pending | redo | on progress | done)
+   */
   async getProjectDalamProses() {
-    const [data,count] = await this.projectRepository
+    const [data, count] = await this.projectRepository
       .createQueryBuilder('project')
-      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on progress','done'] })
+      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on_progress', 'done'] })
       .getManyAndCount();
-    
-    return {data , count};
+
+    return { data, count };
   }
-  
+
+  /**
+   * Menghitung project yang selesai (approved)
+   */
   async getProjectSelesai() {
     const data = await this.projectRepository
       .createQueryBuilder('project')
@@ -131,8 +145,82 @@ export class ProjectService {
       .getCount();
     return data;
   }
+  /**
+   * Memanggil project berdasarkan status (Super Admin) 
+   */
+  async getProjectByStatus(status: statusProject) {
+    const data = await this.projectRepository
+      .createQueryBuilder('project')
+      .where('project.status = :status', { status: status })
+      .getMany();
+
+    return data;
+  }
+  /**
+   * Memanggil Project milik team lead berdasarkan id team lead
+   */
+  async getProjectTeamLead(id: string) {
+    const project = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.user', 'user')
+      .where('user.id = :id', { id: id })
+      .getMany();
 
 
-  
+    return project;
+  }
 
+  /***
+   * Menampilkan 3 update project terbaru
+   */
+  async getUpdateProjectLatestTeamLead(id: string) {
+    const data = await this.getProjectTeamLead(id);
+    const sortedData = data.sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime());
+    const latestThree = sortedData.slice(0, 3);
+    return latestThree;
+  }
+  /***
+   * Menampilkan project dalam proses( pending | done | on progress |redo ) nerdasarkan Team Lead
+   */
+  async getProjectProsesTeamLead(id: string) {
+    const data = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.user', 'user')
+      .where('user.id = :id', { id: id })
+      .andWhere('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on progress', 'done'] })
+      .getMany();
+
+    return data;
+  }
+
+  async getProjectTeamLeadByStatus(id: string, status: statusProject) {
+    const data = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.user', 'user')
+      .where('user.id = :id', { id: id })
+      .andWhere('project.status = :status', { status: status })
+      .getMany();
+
+    return data;
+  }
+
+  // async getProjectByKaryawan(id: string) {
+  //   const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
+  //     .leftJoinAndSelect('karyawan.user', 'user')
+  //     .where('karyawan.id =:id', { id })
+  //     .getOne();
+
+  //   const id_user = karyawan.user.id;
+
+  //   const data = await this.projectRepository.createQueryBuilder('project')
+  //     .leftJoinAndSelect('project.user', 'user')
+  //     .where('user.id = :id', { id: id_user })
+  //     .getMany();
+
+  //   return data;
+  //}
 }
+
+
+
+

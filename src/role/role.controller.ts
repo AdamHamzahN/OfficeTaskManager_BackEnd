@@ -2,10 +2,10 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { RoleService } from './role.service';
 /**
  * Memanggil semua role
- * url: https://localhost:3222/role
+ * url: http://localhost:3222/role [ok]
  * 
  * Memanggil role berdasarkan Id
- * url: https://localhost:3222/role/:id/detail
+ * url: http://localhost:3222/role/:id/detail [ok]
  */
 
 @Controller('role')

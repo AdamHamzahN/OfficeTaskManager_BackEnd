@@ -5,12 +5,33 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
 import { UploadFileBukti } from './dto/upload-file-bukti.dto';
+import * as fs from 'fs';
+import * as path from 'path';
+
+/**
+ * Menambah Tugas
+ * url:http://localhost:3222/tugas/tambah
+ * 
+ * Menampilkan semua tugas
+ * url:http://localhost:3222/tugas
+ * 
+ * Menampilkan detail tugas
+ * url:http://localhost:3222/tugas/:id/detail
+ * 
+ * Meng upadate status tugas
+ * url:http://localhost:3222/tugas/:id/update-status-tugas
+ * 
+ * Mengupload file bukti hasil pengerjaan tugas
+ * url:http://localhost:3222/tugas:id/upload-file-bukti
+ * 
+ * 
+ */
 
 @Controller('tugas')
 export class TugasController {
   constructor(private readonly tugasService: TugasService
 
-  ) {}
+  ) { }
 
   /**
    * Tambah tugas
@@ -18,7 +39,14 @@ export class TugasController {
   @Post('tambah')
   @UseInterceptors(FileInterceptor('file_tugas', {
     storage: diskStorage({
-      destination: './uploads/tugas/file_tugas',
+      destination: (req, file, cb) => {
+        const uploadPath = './uploads/tugas/file_tugas';
+        if (!fs.existsSync(uploadPath)) {
+          fs.mkdirSync(uploadPath, { recursive: true });
+        }
+    
+        cb(null, uploadPath);
+      },
       filename: (req, file, cb) => {
         const filename = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, `${filename}-${file.originalname}`);
@@ -69,9 +97,9 @@ export class TugasController {
   }
 
   /**
-   * Memanggil tugas berdasarkan Id
+   * Memanggil tugas berdasarkan Id (detail tugas)
    */
-  @Get(':id')
+  @Get(':id/detail')
   async getTugasById(@Param('id') id: string) {
     const data = await this.tugasService.findOne(id);
     return {
@@ -100,7 +128,16 @@ export class TugasController {
   @Put(':id/upload-file-bukti')
   @UseInterceptors(FileInterceptor('file_bukti', {
     storage: diskStorage({
-      destination: './uploads/tugas/file_bukti',
+      destination: (req, file, cb) => {
+        const uploadPath = './uploads/tugas/file_bukti';
+
+        // Cek apakah folder sudah ada, jika belum buat folder
+        if (!fs.existsSync(uploadPath)) {
+          fs.mkdirSync(uploadPath, { recursive: true });
+        }
+
+        cb(null, uploadPath);
+      },
       filename: (req, file, cb) => {
         const filename = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, `${filename}-${file.originalname}`);
@@ -118,7 +155,7 @@ export class TugasController {
     }
   }))
   async uploadFileHasil(@Param('id') id: string,
-    @Body() uploadFileBukti : UploadFileBukti,
+    @Body() uploadFileBukti: UploadFileBukti,
     @UploadedFile() file: Express.Multer.File) {
     const data = await this.tugasService.uploadFileBukti(id, uploadFileBukti, file);
     return {
@@ -128,4 +165,11 @@ export class TugasController {
     }
   }
 
+  /**
+   * Menampilkan tugas berdasarkan id karyawan
+   */
+  @Get(':id/tugas-karyawan')
+  async getTugasByKaryawan(@Param('id') id: string) {
+    return await this.tugasService.getTugasByKaryawan(id);
+  }
 }
