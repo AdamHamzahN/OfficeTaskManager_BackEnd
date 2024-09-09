@@ -38,9 +38,8 @@ export class KaryawanService {
    */
   async createKaryawan(createKaryawanDto: CreateKaryawanDto): Promise<Karyawan> {
     const { username, email, nama, nik, gender, job } = createKaryawanDto;
-    createKaryawanDto.password = 'karyawan1234'; 
-    const password = createKaryawanDto.password;
-    const checkUsername = await this.userService.getUserByUsername(createKaryawanDto.username);
+    const password = 'karyawan1234';
+    const checkUsername = await this.userService.getUserByUsername(username);
     if (checkUsername) {
       throw new ConflictException('Username already exists');
     }
@@ -55,7 +54,6 @@ export class KaryawanService {
     user.salt = salt;
     user.email = email;
     user.role = await this.roleRepository.findOne({ where: { nama: 'Karyawan' } });
-    user.salt = salt;
 
     const savedUser = await this.userRepository.save(user);
 

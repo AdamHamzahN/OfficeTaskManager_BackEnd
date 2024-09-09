@@ -49,7 +49,7 @@ export class UsersController {
   @Post('tambah-team-lead')
   async createTeamLead(@Body() createUserDto: CreateUserDto) {
     return {
-      data: await this.usersService.createTeam(createUserDto),
+      data: await this.usersService.createTeamLead(createUserDto),
       statusCode: HttpStatus.CREATED,
       message: 'success',
     };
