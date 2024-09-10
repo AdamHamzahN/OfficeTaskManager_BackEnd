@@ -187,7 +187,7 @@ export class ProjectService {
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.user', 'user')
       .where('user.id = :id', { id: id })
-      .andWhere('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on progress', 'done'] })
+      .andWhere('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on-progress', 'done'] })
       .getMany();
 
     return data;
@@ -203,22 +203,6 @@ export class ProjectService {
 
     return data;
   }
-
-  // async getProjectByKaryawan(id: string) {
-  //   const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
-  //     .leftJoinAndSelect('karyawan.user', 'user')
-  //     .where('karyawan.id =:id', { id })
-  //     .getOne();
-
-  //   const id_user = karyawan.user.id;
-
-  //   const data = await this.projectRepository.createQueryBuilder('project')
-  //     .leftJoinAndSelect('project.user', 'user')
-  //     .where('user.id = :id', { id: id_user })
-  //     .getMany();
-
-  //   return data;
-  //}
 }
 
 

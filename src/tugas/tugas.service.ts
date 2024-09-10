@@ -108,5 +108,17 @@ export class TugasService {
       .getMany();
   }
 
+  async getTugasByTeamLead(id: string) {
+    const data = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoinAndSelect('tugas.project', 'project')
+      .leftJoinAndSelect('project.user', 'user')
+      .where('user.id = :id', { id: id })
+      .orderBy('tugas.updated_at', 'DESC') 
+      .limit(3).getMany()
+
+      return data;
+  }
+  
+
 
 }

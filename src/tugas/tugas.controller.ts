@@ -172,4 +172,9 @@ export class TugasController {
   async getTugasByKaryawan(@Param('id') id: string) {
     return await this.tugasService.getTugasByKaryawan(id);
   }
+
+  @Get('team-lead/:id/update-terbaru')
+  async getTugasByTeamLead(@Param('id') id: string) {
+    return await this.tugasService.getTugasByTeamLead(id);
+  }
 }
