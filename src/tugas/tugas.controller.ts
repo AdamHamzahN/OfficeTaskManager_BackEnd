@@ -24,7 +24,8 @@ import * as path from 'path';
  * Mengupload file bukti hasil pengerjaan tugas
  * url:http://localhost:3222/tugas:id/upload-file-bukti
  * 
- * 
+ * Hitung tugas karyawan berdasarkan 
+ * url:http://localhost:3222/tugas/:idKaryawan/project/:idProject/count-tugas
  */
 
 @Controller('tugas')
@@ -176,5 +177,21 @@ export class TugasController {
   @Get('team-lead/:id/update-terbaru')
   async getTugasByTeamLead(@Param('id') id: string) {
     return await this.tugasService.getTugasByTeamLead(id);
+  }
+
+  @Get(':idKaryawan/project/:idProject/count-tugas')
+  async countTugasKaryawan(@Param('idKaryawan') idKaryawan: string,@Param('idProject') idProject: string){
+    // return 'a';
+    return await this.tugasService.countTugasKaryawan(idKaryawan,idProject);
+  }
+
+  @Get(':id/tugas-project')
+  async getTugasByProject(@Param('id') id:string){
+    return await this.tugasService.getTugasByProject(id);
+  }
+
+  @Get(':id/tugas-selesai')
+  async getTugasDoneByID(@Param('id')id:string){
+    return await this.tugasService.getTugasDoneByProject(id);
   }
 }

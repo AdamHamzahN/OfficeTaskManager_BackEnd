@@ -16,6 +16,9 @@ import { CreateTeamDto } from './dto/create-team.dto';
  * 
  * History
  * url: http://localhost:3222/team/:id/history [ok]
+ * 
+ * Memanggil team berdasarkan project
+ * url: http://localhost:3222/team/:id/team-project
  */
 
 @Controller('team')
@@ -60,6 +63,11 @@ export class TeamController {
     } catch (e) {
       return { e, message: 'gagal' }
     }
+  }
+
+  @Get(':id/team-project')
+  async teamProject(@Param('id') id: string) {
+    return await this.teamService.teamProject(id);
   }
 }
 
