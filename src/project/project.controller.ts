@@ -25,7 +25,7 @@ import * as path from 'path';
  * Update Nama Team
  * url: http://localhost:3222/project/:id/update-nama-team  [ok]
  * 
- * 3 update project terbaru
+ * 3 update project terbaru (super admin)
  * url: http://localhost:3222/project/update-terbaru [ok]
  * 
  * Menghitung jumlah project dalam proses (pending | redo | done |on progress | redo)
