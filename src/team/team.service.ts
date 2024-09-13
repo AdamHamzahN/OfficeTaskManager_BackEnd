@@ -5,6 +5,7 @@ import { Team } from './entities/team.entity';
 import { Repository } from 'typeorm';
 import { Karyawan } from '#/karyawan/entities/karyawan.entity';
 import { Project, statusProject } from '#/project/entities/project.entity';
+import { TugasService } from '#/tugas/tugas.service';
 
 
 @Injectable()
@@ -18,6 +19,8 @@ export class TeamService {
 
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
+
+    private tugasService: TugasService
   ) { }
 
   async create(createTeamDto: CreateTeamDto) {
@@ -40,7 +43,7 @@ export class TeamService {
       karyawan: createTeamDto.id_karyawan,
       project: createTeamDto.id_project
     });
-    
+
     return this.teamRepository.save(newTeam);
 
   }
@@ -84,7 +87,30 @@ export class TeamService {
     return data;
   }
 
+  async teamProject(id: string) {
+    const data = await this.teamRepository.createQueryBuilder('team')
+      .leftJoinAndSelect('team.project', 'project')
+      .leftJoinAndSelect('team.karyawan', 'karyawan')// Menampilkan relasi tugas.karyawan
+      .leftJoin('karyawan.user', 'user')
+      .addSelect('user.nama')
+      .leftJoin('karyawan.job', 'job')
+      .addSelect('job.nama_job')
+      .where('project.id = :id', { id })
+      .getMany();
+  
+    return data;
+  }
+  
+  
+
+
 
 
 
 }
+
+
+
+
+
+

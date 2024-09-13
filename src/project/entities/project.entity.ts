@@ -6,7 +6,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToO
 
 export enum statusProject{
     pending = 'pending',
-    on_progress = 'on_progress',
+    onProgress = 'on-progress',
     done = 'done',
     approved = 'approved',
     redo = 'redo'
