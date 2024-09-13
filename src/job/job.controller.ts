@@ -14,7 +14,7 @@ import { UpdateJobDto } from './dto/update-job.dto';
  * url: http://localhost:3222/job/:id/detail [ok]
  * 
  * Mengupdate Job
- * url: http://localhost:3222/job/:id/update [ok]
+ * url: http://localhost:3222/job/:id/update [ok] 
  */
 @Controller('job')
 export class JobController {

@@ -37,10 +37,10 @@ export class KaryawanService {
    * Membuat Karyawan baru beserta User baru
    */
   async createKaryawan(createKaryawanDto: CreateKaryawanDto): Promise<Karyawan> {
-    const { username, email, nama, nik, gender, job } = createKaryawanDto;
-    createKaryawanDto.password = 'karyawan1234'; 
+    const { username, email, nama, nik, gender, job } = createKaryawanDto; //memudahkan pemanggilan
+    // createKaryawanDto.password = 'karyawan1234'; 
     const password = createKaryawanDto.password;
-    const checkUsername = await this.userService.getUserByUsername(createKaryawanDto.username);
+    const checkUsername = await this.userService.getUserByUsername(username);
     if (checkUsername) {
       throw new ConflictException('Username already exists');
     }
@@ -49,13 +49,12 @@ export class KaryawanService {
     const passwordHash = this.userService.hashPassword(password, salt);
 
     const user = new User();  
-    user.username = username;
+    user.username = username; //createkarywandto.username
     user.password = passwordHash;
     user.nama = nama;
     user.salt = salt;
     user.email = email;
     user.role = await this.roleRepository.findOne({ where: { nama: 'Karyawan' } });
-    user.salt = salt;
 
     const savedUser = await this.userRepository.save(user);
 
