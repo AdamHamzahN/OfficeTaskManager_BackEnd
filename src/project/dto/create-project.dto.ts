@@ -26,4 +26,3 @@ export class CreateProjectDto {
 
     file_project: string;
 }
- 

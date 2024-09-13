@@ -25,7 +25,7 @@ import * as path from 'path';
  * Update Nama Team
  * url: http://localhost:3222/project/:id/update-nama-team  [ok]
  * 
- * 3 update project terbaru
+ * 3 update project terbaru (super admin)
  * url: http://localhost:3222/project/update-terbaru [ok]
  * 
  * Menghitung jumlah project dalam proses (pending | redo | done |on progress | redo)
@@ -46,6 +46,9 @@ import * as path from 'path';
  * 
  * Menampilkan 3 data update terbaru dari project team lead (berdasarkan id team lead)
  * url: http://localhost:3222/project/team-lead/:id/update-terbaru [ok]
+ * 
+ * Menampilkan project Team Lead yang sedang dalam proses  (pending | redo | done |on progress | redo)
+ * url: http://localhost:3222/project/team-lead/:id/data-onprogress [OK]
  * 
  * Menampilkan data project dari team lead berdasarkan status
  * status : pending | on_progress | done | redo | approved
@@ -249,6 +252,14 @@ export class ProjectController {
   }
 
   /**
+   * Menampilkan project Team Lead yang sedang dalam proses  (pending | redo | done |on progress | redo)
+   */
+  @Get('team-lead/:id/data-onprogress')
+  async getDataProjectTeamLeadDalamProses(@Param('id') id: string) {
+    return await this.projectService.getProjectProsesTeamLead(id);
+  }
+
+  /**
    * Menampilkan data project dari team lead berdasarkan status
    */
   @Get('team-lead/:id/projects')
@@ -262,15 +273,5 @@ export class ProjectController {
     return await this.projectService.getProjectProsesTeamLead(id);
   }
 
-    // @Get('karyawan/:id')
-    // async getProjectKaryawan(@Param('id') id:string){
-    //   return await this.projectService.getProjectByKaryawan(id);
-    // }
   
-  
-
-  
-
-
-
 }

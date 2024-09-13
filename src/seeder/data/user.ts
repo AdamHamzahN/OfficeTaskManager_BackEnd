@@ -8,11 +8,11 @@ function hashPassword(password: string, salt: string): string {
                      .digest('hex');
   return hash;
 }
-const salt = crypto.randomBytes(16).toString('hex'); 
+const salt = crypto.randomBytes(16).toString('hex');
 const hashedPassword = hashPassword('admin1234', salt);
 
 export const userMasterData: Partial<User>[] = [
-  {   
+  {
     id: '23131e76-ee28-407c-aed7-a5d573cb1cd5',
     username: 'admin1',
     password: hashedPassword,  

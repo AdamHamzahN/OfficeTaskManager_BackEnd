@@ -31,7 +31,7 @@ export class UsersService {
   /**
    * Membuat User Baru
    */
-  async createTeam(createUserDto: CreateUserDto) {
+  async createTeamLead(createUserDto: CreateUserDto) {
     /**
      * Cek apakah username sudah ada
      */
@@ -40,6 +40,7 @@ export class UsersService {
     if (checkUsername) {
       throw new ConflictException('Username already exists');
     }
+    
     const password = 'teamlead1234'
     const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = this.hashPassword(password, salt);

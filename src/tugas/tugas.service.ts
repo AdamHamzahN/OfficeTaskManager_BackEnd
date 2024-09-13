@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTugasDto } from './dto/create-tugas.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Tugas } from './entities/tugas.entity';
+import { statusTugas, Tugas } from './entities/tugas.entity';
 import { Repository } from 'typeorm';
 import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
 import { UploadFileBukti } from './dto/upload-file-bukti.dto';
@@ -96,7 +96,7 @@ export class TugasService {
       }
     } catch (error) {
       console.error('Error saat mengunggah file bukti:', error);
-      throw new Error('Gagal mengunggah file bukti.');  
+      throw new Error('Gagal mengunggah file bukti.');
     }
   }
 
@@ -108,5 +108,57 @@ export class TugasService {
       .getMany();
   }
 
+  async getTugasByTeamLead(id: string) {
+    const data = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoinAndSelect('tugas.project', 'project')
+      .leftJoinAndSelect('project.user', 'user')
+      .where('user.id = :id', { id: id })
+      .orderBy('tugas.updated_at', 'DESC')
+      .limit(3).getMany()
+
+    return data;
+  }
+
+  async countTugasKaryawan(idKaryawan: string, idProject: string) {
+    // Menghitung jumlah tugas berdasarkan karyawan dan proyek
+    const countAll = await this.tugasRepository.count({
+      where: {
+        karyawan: { id: idKaryawan },
+        project: { id: idProject },
+      },
+    });
+
+    const countSelesai = await this.tugasRepository.count({
+      where: {
+        karyawan: { id: idKaryawan },
+        project: { id: idProject },
+        status: statusTugas.approved
+      },
+    });
+    return {
+      countAll,
+      countSelesai,
+
+    }
+  }
+
+  async getTugasByProject(id: string) {
+    const data = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.project', 'project')
+      .where('project.id = :id', { id })
+      .getMany();
+
+    return data;
+  }
+  async getTugasDoneByProject(id: string) {
+    return await this.tugasRepository.find({
+      where: { 
+        project: { id: id },
+        status: statusTugas.done
+      },
+      relations: ['project', 'karyawan', 'karyawan.user'] // Menambah relasi user melalui karyawan
+    });
+  }
+  
 
 }

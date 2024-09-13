@@ -17,7 +17,7 @@ import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 import { UpdateStatusKeaktifan } from './dto/update-status-keaktifan.dto';
 /**
  * Menambah User Baru (Hanya untuk Super Admin)
- * url: http://localhost:3222/users/tambah [ok]
+ * url: http://localhost:3222/users/tambah-team-lead [ok]
  * 
  * Memanggil Semua User
  * url: http://localhost:3222/users [ok]
@@ -49,7 +49,7 @@ export class UsersController {
   @Post('tambah-team-lead')
   async createTeamLead(@Body() createUserDto: CreateUserDto) {
     return {
-      data: await this.usersService.createTeam(createUserDto),
+      data: await this.usersService.createTeamLead(createUserDto),
       statusCode: HttpStatus.CREATED,
       message: 'success',
     };
