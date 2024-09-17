@@ -8,12 +8,12 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src//.ts\" \"test//.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{src,apps,libs,test}//*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -40,11 +40,7 @@
     "jsonwebtoken": "^9.0.2",
     "module": "^1.2.5",
     "nestjs-pino": "^3.1.2",
-<<<<<<< HEAD
-    "node_module": "^0.0.0",
-=======
     "node": "^22.8.0",
->>>>>>> 6f5cd6676b203cae9e23b35fc0c0ff04e06a4f43
     "pg": "^8.9.0",
     "pino-http": "^8.3.3",
     "reflect-metadata": "^0.1.13",
@@ -92,7 +88,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

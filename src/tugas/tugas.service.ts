@@ -52,6 +52,8 @@ export class TugasService {
     const project = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoinAndSelect('tugas.karyawan', 'karyawan')
       .leftJoinAndSelect('tugas.project', 'project')
+      .leftJoin('karyawan.user','user')
+      .addSelect('user.nama')
       .where('tugas.id = :id', { id })
       .getOne();
 
