@@ -129,7 +129,7 @@ export class ProjectService {
   async getProjectDalamProses() {
     const [data, count] = await this.projectRepository
       .createQueryBuilder('project')
-      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on_progress', 'done'] })
+      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on-progress', 'done'] })
       .getManyAndCount();
 
     return { data, count };

@@ -2,9 +2,9 @@ import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestj
 import { CreateKaryawanDto } from './dto/create-karyawan.dto';
 import { UpdateKaryawanDto } from './dto/update-karyawan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Karyawan } from './entities/karyawan.entity';
+import { Karyawan, statusProject } from './entities/karyawan.entity';
 import { EntityNotFoundError, Repository } from 'typeorm';
-import { User } from '#/users/entities/user.entity';
+import { StatusKeaktifan, User } from '#/users/entities/user.entity';
 import * as crypto from 'crypto';
 import { Role } from '#/role/entities/role.entity';
 import { Job } from '#/job/entities/job.entity';
@@ -48,7 +48,7 @@ export class KaryawanService {
     const salt = crypto.randomBytes(16).toString('hex');
     const passwordHash = this.userService.hashPassword(password, salt);
 
-    const user = new User();  
+    const user = new User();
     user.username = username; //createkarywandto.username
     user.password = passwordHash;
     user.nama = nama;
@@ -156,6 +156,18 @@ export class KaryawanService {
 
     return updatedKaryawan;
   }
+
+  async getKaryawanAvailable() {
+    const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
+        .leftJoin('karyawan.user', 'user').addSelect('user.nama')
+        .leftJoin('karyawan.job', 'job').addSelect('job.nama_job')   
+        .where('karyawan.status_project = :statusProject', { statusProject: statusProject.available}) 
+        .andWhere('user.status = :statusKeaktifan', { statusKeaktifan: StatusKeaktifan.ACTIVE }) 
+        .getMany();
+    return karyawan;
+}
+
+
 
 
 }

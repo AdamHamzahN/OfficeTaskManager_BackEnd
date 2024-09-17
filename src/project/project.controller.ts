@@ -70,7 +70,7 @@ export class ProjectController {
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
         }
-    
+
         cb(null, uploadPath);
       },
       filename: (req, file, cb) => {
@@ -143,7 +143,7 @@ export class ProjectController {
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
         }
-    
+
         cb(null, uploadPath);
       },
       filename: (req, file, cb) => {
@@ -200,7 +200,9 @@ export class ProjectController {
   @Get('count-onprogress')
   async getHitungProjectDalamProses() {
     const { count } = await this.projectService.getProjectDalamProses();
-    return count;
+    return {
+      count: count
+    };
   }
 
   /**
@@ -220,10 +222,10 @@ export class ProjectController {
     return await this.projectService.getProjectSelesai();
   }
 
-/**
- * Memanggil project berdasarkan status
- * status : pending | on_progress | done | redo | approved 
- */
+  /**
+   * Memanggil project berdasarkan status
+   * status : pending | on_progress | done | redo | approved 
+   */
   @Get()
   async getProjectByStatus(
     @Query('status') status?: string,
@@ -273,5 +275,5 @@ export class ProjectController {
     return await this.projectService.getProjectProsesTeamLead(id);
   }
 
-  
+
 }

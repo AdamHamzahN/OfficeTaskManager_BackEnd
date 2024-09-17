@@ -60,7 +60,7 @@ export class KaryawanController {
   /**
    * Memanggil Karyawan berdasarkan Id (untuk detail karyawan)
    */
-  @Get(':id')
+  @Get(':id/detail')
   async detailKaryawan(@Param('id', ParseUUIDPipe) id: string) {
     return {
       data: await this.karyawanService.findOne(id),
@@ -114,6 +114,11 @@ export class KaryawanController {
       statusCode: HttpStatus.OK,
       message:'success',
     }
+  }
+
+  @Get('/status-available')
+  async getKaryawanAvailable(){
+      return this.karyawanService.getKaryawanAvailable()
   }
 
 }
