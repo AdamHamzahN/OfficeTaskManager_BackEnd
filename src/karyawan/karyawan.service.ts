@@ -37,9 +37,8 @@ export class KaryawanService {
    * Membuat Karyawan baru beserta User baru
    */
   async createKaryawan(createKaryawanDto: CreateKaryawanDto): Promise<Karyawan> {
-    const { username, email, nama, nik, gender, job } = createKaryawanDto; //memudahkan pemanggilan
-    // createKaryawanDto.password = 'karyawan1234'; 
-    const password = createKaryawanDto.password;
+    const { username, email, nama, nik, gender, job } = createKaryawanDto;
+    const password = 'karyawan1234';
     const checkUsername = await this.userService.getUserByUsername(username);
     if (checkUsername) {
       throw new ConflictException('Username already exists');
