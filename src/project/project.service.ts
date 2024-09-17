@@ -129,11 +129,14 @@ export class ProjectService {
   async getProjectDalamProses() {
     const [data, count] = await this.projectRepository
       .createQueryBuilder('project')
-      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on-progress', 'done'] })
+      .leftJoin('project.user','user')
+      .addSelect('user.nama')
+      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo','on-progress', 'done'] })
       .getManyAndCount();
-
+  
     return { data, count };
   }
+  
 
   /**
    * Menghitung project yang selesai (approved)
@@ -143,7 +146,9 @@ export class ProjectService {
       .createQueryBuilder('project')
       .where('project.status = :status', { status: 'approved' })
       .getCount();
-    return data;
+    return {
+      count: data
+    };
   }
   /**
    * Memanggil project berdasarkan status (Super Admin) 
