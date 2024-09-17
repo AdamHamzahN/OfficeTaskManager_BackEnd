@@ -55,8 +55,6 @@ export class TugasController {
     }),
     fileFilter: (req, file, cb) => {
       const allowedMimeTypes = [
-        'application/vnd.ms-excel', // .xls
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
         'application/pdf' // .pdf
       ];
       const maxSize = 2 * 1024 * 1024; // maksimal file 2 MB
