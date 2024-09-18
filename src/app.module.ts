@@ -17,6 +17,7 @@ import { TugasModule } from './tugas/tugas.module';
 import { TeamModule } from './team/team.module';
 import { AuthModule } from './auth/auth.module';
 
+
 @Module({
   imports: [
     LoggerModule.forRoot({
@@ -112,5 +113,6 @@ import { AuthModule } from './auth/auth.module';
     TeamModule,
     AuthModule,
   ],
+  
 })
 export class AppModule {}
