@@ -7,6 +7,8 @@ import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
 import { UploadFileBukti } from './dto/upload-file-bukti.dto';
 import * as path from 'path';
 import * as fs from 'fs';
+import { check } from 'prettier';
+import { Team } from '#/team/entities/team.entity';
 
 
 @Injectable()
@@ -14,12 +16,17 @@ export class TugasService {
   constructor(
     @InjectRepository(Tugas)
     private tugasRepository: Repository<Tugas>,
+
+    @InjectRepository(Team)
+    private teamRepository: Repository<Team>,
   ) { }
 
   /**
    * Membuat tugas baru
    */
   async create(createTugasDto: CreateTugasDto, file: Express.Multer.File) {
+    const checkProject = this.teamRepository.createQueryBuilder('team')
+
     const tugas = new Tugas();
     tugas.nama_tugas = createTugasDto.nama_tugas;
     tugas.deskripsi_tugas = createTugasDto.deskripsi_tugas;

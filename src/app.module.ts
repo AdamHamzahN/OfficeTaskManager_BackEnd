@@ -16,10 +16,16 @@ import { ProjectModule } from './project/project.module';
 import { TugasModule } from './tugas/tugas.module';
 import { TeamModule } from './team/team.module';
 import { AuthModule } from './auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), 
+      serveRoot: '/uploads',
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         base: undefined,
@@ -113,6 +119,6 @@ import { AuthModule } from './auth/auth.module';
     TeamModule,
     AuthModule,
   ],
-  
+
 })
-export class AppModule {}
+export class AppModule { }

@@ -4,9 +4,10 @@ import { TugasController } from './tugas.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tugas } from './entities/tugas.entity';
 import { MulterModule } from '@nestjs/platform-express';
+import { Team } from '#/team/entities/team.entity';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Tugas]),
+  imports:[TypeOrmModule.forFeature([Tugas,Team]),
   MulterModule.register()]
   ,
   controllers: [TugasController],

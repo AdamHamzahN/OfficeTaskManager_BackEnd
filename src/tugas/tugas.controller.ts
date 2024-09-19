@@ -60,7 +60,7 @@ export class TugasController {
       const maxSize = 2 * 1024 * 1024; // maksimal file 2 MB
 
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        cb(new BadRequestException('Hanya File Excel dan PDF yang diizinkan'), false);
+        cb(new BadRequestException('Hanya File PDF yang diizinkan'), false);
       } else if (file.size > maxSize) {
         cb(new BadRequestException('File harus dibawah 2 MB'), false);
       } else {
