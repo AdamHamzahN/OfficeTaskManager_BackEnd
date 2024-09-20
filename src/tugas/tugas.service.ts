@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { check } from 'prettier';
 import { Team } from '#/team/entities/team.entity';
+import { UpdateNoteDto } from './dto/update-note.dto';
 
 
 @Injectable()
@@ -165,9 +166,13 @@ export class TugasService {
         project: { id: id },
         status: statusTugas.done
       },
-      relations: ['project', 'karyawan', 'karyawan.user'] // Menambah relasi user melalui karyawan
+      relations: ['project', 'karyawan', 'karyawan.user'] 
     });
   }
   
-
+  async updateNote(id:string,updateNoteDto:UpdateNoteDto){
+    const tugas = await this.tugasRepository.findOneBy({ id });
+    tugas.note = updateNoteDto.note;
+    return this.tugasRepository.save(tugas);
+  }
 }

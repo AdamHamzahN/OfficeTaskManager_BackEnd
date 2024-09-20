@@ -7,6 +7,8 @@ import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
 import { UploadFileBukti } from './dto/upload-file-bukti.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { UpdateNoteDto } from './dto/update-note.dto';
+
 
 /**
  * Menambah Tugas
@@ -192,4 +194,9 @@ export class TugasController {
   async getTugasDoneByID(@Param('id')id:string){
     return await this.tugasService.getTugasDoneByProject(id);
   }
+
+    @Put(':id/update-note')
+    async updateNote(@Param('id') id:string ,@Body() updateNoteDto : UpdateNoteDto){
+      return await this.tugasService.updateNote(id,updateNoteDto);
+    }
 }
