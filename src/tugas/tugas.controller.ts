@@ -131,8 +131,6 @@ export class TugasController {
     storage: diskStorage({
       destination: (req, file, cb) => {
         const uploadPath = './uploads/tugas/file_bukti';
-
-        // Cek apakah folder sudah ada, jika belum buat folder
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
         }

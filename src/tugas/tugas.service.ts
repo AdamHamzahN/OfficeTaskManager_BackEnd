@@ -60,7 +60,7 @@ export class TugasService {
     const project = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoinAndSelect('tugas.karyawan', 'karyawan')
       .leftJoinAndSelect('tugas.project', 'project')
-      .leftJoin('karyawan.user','user')
+      .leftJoin('karyawan.user', 'user')
       .addSelect('user.nama')
       .where('tugas.id = :id', { id })
       .getOne();
@@ -85,11 +85,9 @@ export class TugasService {
     try {
       const project = await this.tugasRepository.findOneBy({ id });
       if (uploadFileBukti) {
-        if (project.file_bukti) {
+        if (project.file_bukti !== null) {
           const oldFilePath = path.resolve(project.file_bukti);
-
           if (fs.existsSync(oldFilePath)) {
-            // Hapus file lama
             fs.unlinkSync(oldFilePath);
           }
         }
@@ -162,15 +160,15 @@ export class TugasService {
   }
   async getTugasDoneByProject(id: string) {
     return await this.tugasRepository.find({
-      where: { 
+      where: {
         project: { id: id },
         status: statusTugas.done
       },
-      relations: ['project', 'karyawan', 'karyawan.user'] 
+      relations: ['project', 'karyawan', 'karyawan.user']
     });
   }
-  
-  async updateNote(id:string,updateNoteDto:UpdateNoteDto){
+
+  async updateNote(id: string, updateNoteDto: UpdateNoteDto) {
     const tugas = await this.tugasRepository.findOneBy({ id });
     tugas.note = updateNoteDto.note;
     return this.tugasRepository.save(tugas);
