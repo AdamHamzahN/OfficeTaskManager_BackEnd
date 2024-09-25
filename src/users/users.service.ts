@@ -175,13 +175,12 @@ export class UsersService {
   }
 
   async findTeamLead() {
-    const data = await this.usersRepository.createQueryBuilder('user')
+
+    return await this.usersRepository.createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .where('role.nama = :nama', { nama: 'Team Lead' })
       .getMany();
-    return {
-      data,
-    };
+    
   }
 
   // async findKaryawan() {

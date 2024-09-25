@@ -3,19 +3,19 @@ import { StatusKeaktifan } from '../entities/user.entity';
 import { Role } from '#/role/entities/role.entity';
 
 export class CreateUserDto {
-    @IsNotEmpty({message:'Username  tidak boleh kosong'})
+    @IsNotEmpty()
     username: string;
-
+    
     // @MinLength(6)
     // @MaxLength(20)
     // @IsNotEmpty({message:'Password tidak boleh kosong'})
     password?: string;
 
-    @IsNotEmpty({message:'Email tidak boleh kosong'})
+    @IsNotEmpty()
     @IsEmail()
     email: string;
 
-    @IsNotEmpty({message:'Nama tidak boleh kosong'})
+    @IsNotEmpty()
     nama: string;
 
     @IsOptional()

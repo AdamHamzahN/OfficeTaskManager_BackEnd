@@ -114,11 +114,10 @@ export class UsersController {
    */
   @Get('team-lead')
   async getTeamLead() {
-    return {
-      data: await this.usersService.findTeamLead(),
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
+    return await this.usersService.findTeamLead();
+      // statusCode: HttpStatus.OK,
+      // message: 'success',
+  
   }
 
   // @Get('karyawan')
