@@ -175,20 +175,10 @@ export class UsersService {
   }
 
   async findTeamLead() {
-<<<<<<< HEAD
-
-=======
->>>>>>> 62536b5768506d6acf73116e78fb6d9dde679a57
     return await this.usersRepository.createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .where('role.nama = :nama', { nama: 'Team Lead' })
       .getMany();
-<<<<<<< HEAD
-    
-=======
-     
-     
->>>>>>> 62536b5768506d6acf73116e78fb6d9dde679a57
   }
 
   // async findKaryawan() {
