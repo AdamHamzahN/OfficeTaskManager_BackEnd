@@ -7,6 +7,9 @@ import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
 import { UploadFileBukti } from './dto/upload-file-bukti.dto';
 import * as path from 'path';
 import * as fs from 'fs';
+import { check } from 'prettier';
+import { Team } from '#/team/entities/team.entity';
+import { UpdateNoteDto } from './dto/update-note.dto';
 
 
 @Injectable()
@@ -14,12 +17,17 @@ export class TugasService {
   constructor(
     @InjectRepository(Tugas)
     private tugasRepository: Repository<Tugas>,
+
+    @InjectRepository(Team)
+    private teamRepository: Repository<Team>,
   ) { }
 
   /**
    * Membuat tugas baru
    */
   async create(createTugasDto: CreateTugasDto, file: Express.Multer.File) {
+    const checkProject = this.teamRepository.createQueryBuilder('team')
+
     const tugas = new Tugas();
     tugas.nama_tugas = createTugasDto.nama_tugas;
     tugas.deskripsi_tugas = createTugasDto.deskripsi_tugas;
@@ -52,7 +60,7 @@ export class TugasService {
     const project = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoinAndSelect('tugas.karyawan', 'karyawan')
       .leftJoinAndSelect('tugas.project', 'project')
-      .leftJoin('karyawan.user','user')
+      .leftJoin('karyawan.user', 'user')
       .addSelect('user.nama')
       .where('tugas.id = :id', { id })
       .getOne();
@@ -77,11 +85,9 @@ export class TugasService {
     try {
       const project = await this.tugasRepository.findOneBy({ id });
       if (uploadFileBukti) {
-        if (project.file_bukti) {
+        if (project.file_bukti !== null) {
           const oldFilePath = path.resolve(project.file_bukti);
-
           if (fs.existsSync(oldFilePath)) {
-            // Hapus file lama
             fs.unlinkSync(oldFilePath);
           }
         }
@@ -154,13 +160,17 @@ export class TugasService {
   }
   async getTugasDoneByProject(id: string) {
     return await this.tugasRepository.find({
-      where: { 
+      where: {
         project: { id: id },
         status: statusTugas.done
       },
-      relations: ['project', 'karyawan', 'karyawan.user'] // Menambah relasi user melalui karyawan
+      relations: ['project', 'karyawan', 'karyawan.user']
     });
   }
-  
 
+  async updateNote(id: string, updateNoteDto: UpdateNoteDto) {
+    const tugas = await this.tugasRepository.findOneBy({ id });
+    tugas.note = updateNoteDto.note;
+    return this.tugasRepository.save(tugas);
+  }
 }

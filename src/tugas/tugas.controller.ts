@@ -7,6 +7,8 @@ import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
 import { UploadFileBukti } from './dto/upload-file-bukti.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { UpdateNoteDto } from './dto/update-note.dto';
+
 
 /**
  * Menambah Tugas
@@ -60,7 +62,7 @@ export class TugasController {
       const maxSize = 2 * 1024 * 1024; // maksimal file 2 MB
 
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        cb(new BadRequestException('Hanya File Excel dan PDF yang diizinkan'), false);
+        cb(new BadRequestException('Hanya File PDF yang diizinkan'), false);
       } else if (file.size > maxSize) {
         cb(new BadRequestException('File harus dibawah 2 MB'), false);
       } else {
@@ -129,8 +131,6 @@ export class TugasController {
     storage: diskStorage({
       destination: (req, file, cb) => {
         const uploadPath = './uploads/tugas/file_bukti';
-
-        // Cek apakah folder sudah ada, jika belum buat folder
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
         }
@@ -192,4 +192,9 @@ export class TugasController {
   async getTugasDoneByID(@Param('id')id:string){
     return await this.tugasService.getTugasDoneByProject(id);
   }
+
+    @Put(':id/update-note')
+    async updateNote(@Param('id') id:string ,@Body() updateNoteDto : UpdateNoteDto){
+      return await this.tugasService.updateNote(id,updateNoteDto);
+    }
 }
