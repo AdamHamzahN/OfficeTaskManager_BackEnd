@@ -10,6 +10,8 @@ import * as fs from 'fs';
 import { check } from 'prettier';
 import { Team } from '#/team/entities/team.entity';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { User } from '#/users/entities/user.entity';
+import { statusProject } from '#/project/entities/project.entity';
 
 
 @Injectable()
@@ -173,4 +175,42 @@ export class TugasService {
     tugas.note = updateNoteDto.note;
     return this.tugasRepository.save(tugas);
   }
+
+  async getNewTugas(id: string) {
+    const newTugas = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'user')
+      .addSelect('user.nama')
+      .where('user.id = :id', { id })
+      .orderBy('tugas.updated_at', 'DESC')
+      .limit(3)
+      .getMany();
+
+
+    return newTugas;
+  }
+
+  // async getTugasByIdUser(id:string){
+  //   const newTugas = await this.tugasRepository.createQueryBuilder('tugas')
+  //     .leftJoin('tugas.karyawan', 'karyawan')
+  //     .leftJoin('karyawan.user', 'user')
+  //     .addSelect('user.nama')
+  //     .where('user.id = :id', { id })
+  //     .getMany();
+  // }
+
+  async getTugasKaryawanByProject(id: string) {
+    const tugas = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'user')
+      .where('user.id = :id', { id })
+      .leftJoin('tugas.project', 'project') 
+      .andWhere('project.status != :status', { status: statusProject.approved }) 
+      .addSelect(['project.nama_project', 'project.status']) 
+      .getMany();
+
+    return tugas;
+}
+
+
 }

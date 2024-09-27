@@ -47,7 +47,7 @@ export class TugasController {
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
         }
-    
+
         cb(null, uploadPath);
       },
       filename: (req, file, cb) => {
@@ -178,23 +178,33 @@ export class TugasController {
   }
 
   @Get(':idKaryawan/project/:idProject/count-tugas')
-  async countTugasKaryawan(@Param('idKaryawan') idKaryawan: string,@Param('idProject') idProject: string){
+  async countTugasKaryawan(@Param('idKaryawan') idKaryawan: string, @Param('idProject') idProject: string) {
     // return 'a';
-    return await this.tugasService.countTugasKaryawan(idKaryawan,idProject);
+    return await this.tugasService.countTugasKaryawan(idKaryawan, idProject);
   }
 
   @Get(':id/tugas-project')
-  async getTugasByProject(@Param('id') id:string){
+  async getTugasByProject(@Param('id') id: string) {
     return await this.tugasService.getTugasByProject(id);
   }
 
   @Get(':id/tugas-selesai')
-  async getTugasDoneByID(@Param('id')id:string){
+  async getTugasDoneByID(@Param('id') id: string) {
     return await this.tugasService.getTugasDoneByProject(id);
   }
 
-    @Put(':id/update-note')
-    async updateNote(@Param('id') id:string ,@Body() updateNoteDto : UpdateNoteDto){
-      return await this.tugasService.updateNote(id,updateNoteDto);
-    }
+  @Put(':id/update-note')
+  async updateNote(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
+    return await this.tugasService.updateNote(id, updateNoteDto);
+  }
+
+  @Get(':id/karyawan/tugas-terbaru')
+  async updateTugasTerbaru(@Param('id') id: string){
+    return await this.tugasService.getNewTugas(id)
+  }
+
+  @Get(':id/karyawan/tugas-project')
+  async getTugasKaryawanByProject(@Param('id') id: string){
+    return await this.tugasService.getTugasKaryawanByProject(id)
+  }
 }
