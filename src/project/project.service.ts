@@ -129,14 +129,14 @@ export class ProjectService {
   async getProjectDalamProses() {
     const [data, count] = await this.projectRepository
       .createQueryBuilder('project')
-      .leftJoin('project.user','user')
+      .leftJoin('project.user', 'user')
       .addSelect('user.nama')
-      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo','on-progress', 'done'] })
+      .where('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on-progress', 'done'] })
       .getManyAndCount();
-  
+
     return { data, count };
   }
-  
+
 
   /**
    * Menghitung project yang selesai (approved)
@@ -199,8 +199,7 @@ export class ProjectService {
   }
 
   async getProjectTeamLeadByStatus(id: string, status: statusProject) {
-    const data = await this.projectRepository
-      .createQueryBuilder('project')
+    const data = await this.projectRepository.createQueryBuilder('project')
       .leftJoinAndSelect('project.user', 'user')
       .where('user.id = :id', { id: id })
       .andWhere('project.status = :status', { status: status })
@@ -208,6 +207,51 @@ export class ProjectService {
 
     return data;
   }
+
+  async getProjectSelesaiKaryawan(id: string) {
+    const data = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoin('project.tugas', 'tugas')
+      .leftJoin('project.user', 'projectUser')  
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'karyawanUser')
+      .where('karyawanUser.id = :id', { id }) 
+      .andWhere('project.status = :status', { status: statusProject.approved })
+      .select([
+        'project.id',
+        'project.nama_project',
+        'project.status',
+        'projectUser.username',  
+      ])
+      .getMany();  
+
+    return data;
+  }
+
+  async getProjectDikerjakanKaryawan(id: string) {
+    const data = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoin('project.tugas', 'tugas')
+      .leftJoin('project.user', 'projectUser')  
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'karyawanUser')
+      .where('karyawanUser.id = :id', { id }) 
+      .andWhere('project.status != :status', { status: statusProject.approved })
+      .select([
+        'project.id',
+        'project.nama_project',
+        'project.status',
+        'project.start_date',
+        'project.end_date',
+        'projectUser.username', 
+
+      ])
+      .getMany();  
+
+    return data;
+  }
+
+
 }
 
 

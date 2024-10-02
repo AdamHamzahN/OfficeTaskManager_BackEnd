@@ -275,5 +275,14 @@ export class ProjectController {
     return await this.projectService.getProjectProsesTeamLead(id);
   }
 
+  @Get(`karyawan/:id/project-selesai`)
+  async getProjectSelesaiKaryawan(@Param('id') id: string) {
+    return await this.projectService.getProjectSelesaiKaryawan(id);
+  }
+
+  @Get(`karyawan/:id/project-dikerjakan`)
+  async getProjectDikerjajanKaryawan(@Param('id') id: string) {
+    return await this.projectService.getProjectDikerjakanKaryawan(id);
+  }
 
 }

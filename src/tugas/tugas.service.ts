@@ -204,13 +204,47 @@ export class TugasService {
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoin('karyawan.user', 'user')
       .where('user.id = :id', { id })
-      .leftJoin('tugas.project', 'project') 
-      .andWhere('project.status != :status', { status: statusProject.approved }) 
-      .addSelect(['project.nama_project', 'project.status']) 
+      .leftJoin('tugas.project', 'project')
+      .andWhere('project.status != :status', { status: statusProject.approved })
+      .addSelect(['project.nama_project', 'project.status'])
       .getMany();
 
-    return tugas;
-}
+    const jumlahSelesai = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'user')
+      .leftJoin('tugas.project', 'project')
+      .where('user.id = :id', { id })
+      .andWhere('project.status != :statusProjectApproved', { statusProjectApproved: statusProject.approved })
+      .andWhere('tugas.status = :statusSelesai', { statusSelesai: statusTugas.approved })
+      .getCount();
+
+    const jumlahBelumSelesai = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'user')
+      .leftJoin('tugas.project', 'project')
+      .where('user.id = :id', { id })
+      .andWhere('project.status != :statusProjectApproved', { statusProjectApproved: statusProject.approved })
+      .andWhere('tugas.status != :statusSelesai', { statusSelesai: statusTugas.approved })
+      .getCount();
+
+    const result = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'user')
+      .leftJoin('tugas.project', 'project')
+      .where('user.id = :id', { id })
+      .andWhere('project.status != :statusProjectApproved', { statusProjectApproved: statusProject.approved })
+      .select('project.nama_project', 'nama_project') // Alias 'nama_project' untuk kemudahan akses
+      .getRawOne();
+
+    const nama_project = result ? result.nama_project : null;
+
+    return {
+      tugas,
+      jumlahSelesai,
+      jumlahBelumSelesai,
+      nama_project
+    };
+  }
 
 
 }
