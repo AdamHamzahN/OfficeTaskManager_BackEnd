@@ -207,4 +207,14 @@ export class TugasController {
   async getTugasKaryawanByProject(@Param('id') id: string){
     return await this.tugasService.getTugasKaryawanByProject(id)
   }
+
+  @Get(':id/karyawan/tugas-karyawan')
+  async getTugasKaryawanByIdUser(@Param('id') id:string){
+    return await this.tugasService.getTugasKaryawanByIdUser(id);
+  }
+
+  @Get(':id/karyawan/tugas-karyawan-belum-selesai')
+  async getTugasKaryawanBelumSelesai(@Param('id') id:string){
+    return await this.tugasService.getTugasKaryawanBelumSelesai(id);
+  }
 }

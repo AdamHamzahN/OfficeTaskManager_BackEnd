@@ -246,5 +246,24 @@ export class TugasService {
     };
   }
 
+  async getTugasKaryawanByIdUser(id: string){
+    const data = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.karyawan','karyawan')
+      .leftJoinAndSelect('karyawan.user','user')
+      .where('user.id = :id',{id})
+      .addSelect('user.id','user.nama')
+      .getMany();
+    return data;
+  }
 
+  async getTugasKaryawanBelumSelesai(id: string){
+    const data = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.karyawan','karyawan')
+      .leftJoinAndSelect('karyawan.user','user')
+      .where('user.id = :id',{id})
+      .andWhere('tugas.status !=:status',{status:statusTugas.approved })
+      .addSelect('user.id','user.nama')
+      .getMany();
+    return data;
+  }
 }
