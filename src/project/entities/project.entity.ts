@@ -52,8 +52,8 @@ export class Project {
     /**
      * deskripsi text
      */
-    @Column({ type: 'text'})
-    deskripsi: string;
+    @Column({ type: 'text',nullable: true })
+    note: string;
 
     /**
      * file_hasil_project text

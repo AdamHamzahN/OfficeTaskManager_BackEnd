@@ -21,7 +21,6 @@ export class CreateTugasDto {
     @IsNotEmpty({message:"Mohon masukkan Karyawan yang ingin diberi tugas!"})
     id_karyawan:Karyawan;
 
-    // @IsNotEmpty({message:"Mohon masukkan file detail tugas"})
-    file_tugas: string;
+
 
 }

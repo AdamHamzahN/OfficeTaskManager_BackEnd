@@ -9,9 +9,13 @@ import { UpdateNamaTeamDto } from './dto/update-nama-team.dto';
 import { statusProject } from './entities/project.entity';
 import * as fs from 'fs';
 import * as path from 'path';
+import { UploadFileProject } from './dto/upload-file-tugas.dto';
 /***
  * Tambah Project
  * url: http://localhost:3222/project/tambah [ok]
+ * 
+ * Upload File Project
+ *  url: http://localhost:3222/project/:id/upload-file-project [ok]
  * 
  * Memanggil project berdasarkan Id (detail project)
  * url: http://localhost:3222/project/:id/detail-project [ok]
@@ -61,7 +65,7 @@ export class ProjectController {
   /**
    * Tambah Project Baru
    */
-  @Post('tambah')
+  @Put(':id/upload-file-project')
   @UseInterceptors(FileInterceptor('file_project', {
     storage: diskStorage({
       destination: (req, file, cb) => {
@@ -79,9 +83,14 @@ export class ProjectController {
       },
     }),
     fileFilter: (req, file, cb) => {
+      const allowedMimeTypes = [
+        'application/pdf', // .pdf
+        'application/vnd.ms-excel', //excel
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' //spreadsheet
+      ];
       const maxSize = 2 * 1024 * 1024; // maximal file 2 MB
-      if (file.mimetype !== 'application/vnd.ms-excel' && file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-        cb(new BadRequestException('Hanya File Excel saja yang diizinkan'), false);
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        cb(new BadRequestException('Hanya File Excel dan PDF saja yang diizinkan'), false);
       } else if (file.size > maxSize) {
         cb(new BadRequestException('File harus dibawah 2 MB'), false);
       } else {
@@ -89,8 +98,21 @@ export class ProjectController {
       }
     }
   }))
+  async uploadFileProject(
+    @Param('id') id: string,
+    @Body() UploadFileProject: UploadFileProject,
+    @UploadedFile() file: Express.Multer.File) {
+    const data = await this.projectService.uploadFileProject(id, UploadFileProject, file);
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    }
+  }
+
+  @Post('/tambah')
   async createProject(@UploadedFile() file: Express.Multer.File, @Body() createProjectDto: CreateProjectDto) {
-    return await this.projectService.create(createProjectDto, file);
+    return await this.projectService.create(createProjectDto);
   }
 
   /**

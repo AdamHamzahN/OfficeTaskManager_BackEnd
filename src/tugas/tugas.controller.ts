@@ -8,6 +8,7 @@ import { UploadFileBukti } from './dto/upload-file-bukti.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { UploadFileTugas } from './dto/upload-file-tugas';
 
 
 /**
@@ -39,7 +40,7 @@ export class TugasController {
   /**
    * Tambah tugas
    */
-  @Post('tambah')
+  @Put(':id/upload-file-tugas')
   @UseInterceptors(FileInterceptor('file_tugas', {
     storage: diskStorage({
       destination: (req, file, cb) => {
@@ -70,9 +71,22 @@ export class TugasController {
       }
     }
   }))
-  async createTugas(@Body() createTugasDto: CreateTugasDto, @UploadedFile() file: Express.Multer.File) {
+  async uploadFileTugas(
+    @Param('id') id: string,
+    @Body() uploadFileTugas: UploadFileTugas,
+    @UploadedFile() file: Express.Multer.File) {
+    const data = await this.tugasService.uploadFileTugas(id, uploadFileTugas, file);
+    return {
+      data,
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    }
+  }
+
+  @Post('tambah')
+  async createTugas(@Body() createTugasDto: CreateTugasDto) {
     try {
-      const data = await this.tugasService.create(createTugasDto, file);
+      const data = await this.tugasService.create(createTugasDto);
       return {
         data,
         statusCode: 201,
@@ -199,22 +213,22 @@ export class TugasController {
   }
 
   @Get(':id/karyawan/tugas-terbaru')
-  async updateTugasTerbaru(@Param('id') id: string){
+  async updateTugasTerbaru(@Param('id') id: string) {
     return await this.tugasService.getNewTugas(id)
   }
 
   @Get(':id/karyawan/tugas-project')
-  async getTugasKaryawanByProject(@Param('id') id: string){
+  async getTugasKaryawanByProject(@Param('id') id: string) {
     return await this.tugasService.getTugasKaryawanByProject(id)
   }
 
   @Get(':id/karyawan/tugas-karyawan')
-  async getTugasKaryawanByIdUser(@Param('id') id:string){
+  async getTugasKaryawanByIdUser(@Param('id') id: string) {
     return await this.tugasService.getTugasKaryawanByIdUser(id);
   }
 
   @Get(':id/karyawan/tugas-karyawan-belum-selesai')
-  async getTugasKaryawanBelumSelesai(@Param('id') id:string){
+  async getTugasKaryawanBelumSelesai(@Param('id') id: string) {
     return await this.tugasService.getTugasKaryawanBelumSelesai(id);
   }
 }

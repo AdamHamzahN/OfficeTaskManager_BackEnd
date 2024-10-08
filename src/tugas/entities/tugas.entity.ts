@@ -44,7 +44,7 @@ export class Tugas {
     /**
      * file_tugas text
      */
-    @Column({ type: 'text' })
+    @Column({ type: 'text',nullable:true })
     file_tugas: string;
 
     /**

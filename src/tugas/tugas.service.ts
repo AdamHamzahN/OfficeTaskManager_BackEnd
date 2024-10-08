@@ -12,6 +12,7 @@ import { Team } from '#/team/entities/team.entity';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { User } from '#/users/entities/user.entity';
 import { statusProject } from '#/project/entities/project.entity';
+import { UploadFileTugas } from './dto/upload-file-tugas';
 
 
 @Injectable()
@@ -27,19 +28,37 @@ export class TugasService {
   /**
    * Membuat tugas baru
    */
-  async create(createTugasDto: CreateTugasDto, file: Express.Multer.File) {
-    const checkProject = this.teamRepository.createQueryBuilder('team')
-
+  async create(createTugasDto: CreateTugasDto) {
     const tugas = new Tugas();
     tugas.nama_tugas = createTugasDto.nama_tugas;
     tugas.deskripsi_tugas = createTugasDto.deskripsi_tugas;
     tugas.deadline = new Date(createTugasDto.deadline);
     tugas.project = createTugasDto.id_project;
     tugas.karyawan = createTugasDto.id_karyawan;
-    tugas.file_tugas = file?.path;
 
     return await this.tugasRepository.save(tugas);
   }
+
+  async uploadFileTugas(id:string,uploadFileTugas:UploadFileTugas,file: Express.Multer.File){
+    try {
+      const project = await this.tugasRepository.findOneBy({ id });
+      if (uploadFileTugas) {
+        // Buat file baru
+        project.file_tugas = file.path;
+        const data = await this.tugasRepository.save(project);
+        return {
+          data,
+          message: 'File Tugas berhasil diunggah.'
+        };
+      } else {
+        return { message: 'File tidak valid.' };
+      }
+    } catch (error) {
+      console.error('Error saat mengunggah file bukti:', error);
+      throw new Error('Gagal mengunggah file bukti.');
+    }
+  }
+  
 
   /**
    * Memanggil semua tugas

@@ -11,6 +11,7 @@ import * as path from 'path';
 import { UpdateNamaTeamDto } from './dto/update-nama-team.dto';
 import { KaryawanService } from '#/karyawan/karyawan.service';
 import { Karyawan } from '#/karyawan/entities/karyawan.entity';
+import { UploadFileProject } from './dto/upload-file-tugas.dto';
 // import { Role } from '#/role/entities/role.entity';
 
 @Injectable()
@@ -33,17 +34,32 @@ export class ProjectService {
   /**
    * Membuat project Baru
    */
-  async create(createProjectDto: CreateProjectDto, file: Express.Multer.File) {
+  async create(createProjectDto: CreateProjectDto) {
     const project = new Project();
     project.nama_project = createProjectDto.nama_project;
     project.nama_team = createProjectDto.nama_team;
-    project.deskripsi = createProjectDto.deskripsi;
     project.start_date = new Date(createProjectDto.start_date);
     project.end_date = new Date(createProjectDto.end_date)
     project.user = createProjectDto.id_team_lead;
-    project.file_project = file?.path;
 
     return await this.projectRepository.save(project);
+  }
+
+  async uploadFileProject(id:string,uploadFileProject:UploadFileProject,file: Express.Multer.File){
+    try {
+      const project = await this.projectRepository.findOneBy({ id });
+      if (uploadFileProject) {
+        // Buat file baru
+        project.file_project = file.path;
+        const data = await this.projectRepository.save(project);
+        return data;
+      } else {
+        return { message: 'File tidak valid.' };
+      }
+    } catch (error) {
+      console.error('Error saat mengunggah file ', error);
+      throw new Error('Gagal mengunggah file');
+    }
   }
 
   /**

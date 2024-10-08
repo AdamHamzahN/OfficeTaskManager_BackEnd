@@ -10,10 +10,6 @@ export class CreateProjectDto {
     @IsNotEmpty({ message: "Nama Team tidak boleh kosong" })
     nama_team: string;
 
-    @IsString()
-    @IsNotEmpty({ message: "deskripsi tidak boleh kosong" })
-    deskripsi: string;
-
     @IsNotEmpty({ message: "Start Date tidak boleh kosong" })
     start_date: string;
 
