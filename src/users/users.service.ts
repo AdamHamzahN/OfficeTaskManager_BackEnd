@@ -36,11 +36,11 @@ export class UsersService {
      * Cek apakah username sudah ada
      */
     const checkUsername = await this.getUserByUsername(createUserDto.username);
-    
+
     if (checkUsername) {
       throw new ConflictException('Username already exists');
     }
-    
+
     const password = 'teamlead1234'
     const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = this.hashPassword(password, salt);
@@ -83,25 +83,10 @@ export class UsersService {
    * 
    */
   async findOne(id: string) {
-    try {
-      return await this.usersRepository.findOneOrFail({
-        where: {
-          id,
-        },
-      });
-    } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.NOT_FOUND,
-            error: 'Data not found',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      } else {
-        throw e;
-      }
-    }
+    return await this.usersRepository.findOneOrFail({
+      where: { id },
+      select: ['id', 'username', 'email','nama'],
+    });
   }
 
   /**
@@ -181,19 +166,8 @@ export class UsersService {
       .getMany();
   }
 
-  // async findKaryawan() {
-  //   const data = await this.usersRepository.createQueryBuilder('user')
-  //     .leftJoinAndSelect('user.role', 'role')
-  //     .where('role.nama = :nama', { nama: 'Karyawan' })
-  //     .getMany();
-  //   return {
-  //     data,
-  //   };
-  // }
-
   async updateStatusKeaktifan(id: string, updateStatusKeaktifan: UpdateStatusKeaktifan) {
     await this.usersRepository.update(id, updateStatusKeaktifan);
     return await this.usersRepository.findOne({ where: { id } });
   }
-
 }

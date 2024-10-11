@@ -45,7 +45,7 @@ export class ProjectService {
     return await this.projectRepository.save(project);
   }
 
-  async uploadFileProject(id:string,uploadFileProject:UploadFileProject,file: Express.Multer.File){
+  async uploadFileProject(id: string, uploadFileProject: UploadFileProject, file: Express.Multer.File) {
     try {
       const project = await this.projectRepository.findOneBy({ id });
       if (uploadFileProject) {
@@ -195,10 +195,17 @@ export class ProjectService {
    * Menampilkan 3 update project terbaru
    */
   async getUpdateProjectLatestTeamLead(id: string) {
-    const data = await this.getProjectTeamLead(id);
-    const sortedData = data.sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime());
-    const latestThree = sortedData.slice(0, 3);
-    return latestThree;
+    return await this.projectRepository.createQueryBuilder('project')
+      .leftJoinAndSelect('project.user', 'teamLead')
+      .where('teamLead.id = :id', { id })
+      .orderBy('project.updated_at', 'DESC') 
+      .select([
+        'project.nama_project',   
+        'project.status',        
+        'project.updated_at'     
+      ])
+      .limit(3) 
+      .getMany();
   }
   /***
    * Menampilkan project dalam proses( pending | done | on progress |redo ) nerdasarkan Team Lead
@@ -209,6 +216,7 @@ export class ProjectService {
       .leftJoinAndSelect('project.user', 'user')
       .where('user.id = :id', { id: id })
       .andWhere('project.status IN (:...statuses)', { statuses: ['pending', 'redo', 'on-progress', 'done'] })
+      .select(['project.id','project.nama_project','user.nama','project.start_date','project.end_date'])
       .getMany();
 
     return data;
@@ -228,18 +236,18 @@ export class ProjectService {
     const data = await this.projectRepository
       .createQueryBuilder('project')
       .leftJoin('project.tugas', 'tugas')
-      .leftJoin('project.user', 'projectUser')  
+      .leftJoin('project.user', 'projectUser')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoin('karyawan.user', 'karyawanUser')
-      .where('karyawanUser.id = :id', { id }) 
+      .where('karyawanUser.id = :id', { id })
       .andWhere('project.status = :status', { status: statusProject.approved })
       .select([
         'project.id',
         'project.nama_project',
         'project.status',
-        'projectUser.username',  
+        'projectUser.username',
       ])
-      .getMany();  
+      .getMany();
 
     return data;
   }
@@ -248,10 +256,10 @@ export class ProjectService {
     const data = await this.projectRepository
       .createQueryBuilder('project')
       .leftJoin('project.tugas', 'tugas')
-      .leftJoin('project.user', 'projectUser')  
+      .leftJoin('project.user', 'projectUser')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoin('karyawan.user', 'karyawanUser')
-      .where('karyawanUser.id = :id', { id }) 
+      .where('karyawanUser.id = :id', { id })
       .andWhere('project.status != :status', { status: statusProject.approved })
       .select([
         'project.id',
@@ -259,10 +267,10 @@ export class ProjectService {
         'project.status',
         'project.start_date',
         'project.end_date',
-        'projectUser.username', 
+        'projectUser.username',
 
       ])
-      .getMany();  
+      .getMany();
 
     return data;
   }

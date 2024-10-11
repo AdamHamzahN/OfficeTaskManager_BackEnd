@@ -39,7 +39,7 @@ export class TugasService {
     return await this.tugasRepository.save(tugas);
   }
 
-  async uploadFileTugas(id:string,uploadFileTugas:UploadFileTugas,file: Express.Multer.File){
+  async uploadFileTugas(id: string, uploadFileTugas: UploadFileTugas, file: Express.Multer.File) {
     try {
       const project = await this.tugasRepository.findOneBy({ id });
       if (uploadFileTugas) {
@@ -58,7 +58,7 @@ export class TugasService {
       throw new Error('Gagal mengunggah file bukti.');
     }
   }
-  
+
 
   /**
    * Memanggil semua tugas
@@ -143,6 +143,7 @@ export class TugasService {
       .leftJoinAndSelect('project.user', 'user')
       .where('user.id = :id', { id: id })
       .orderBy('tugas.updated_at', 'DESC')
+      .select(['tugas.nama_tugas', 'tugas.status', 'tugas.updated_at', 'user.nama', 'project.nama_project'])
       .limit(3).getMany()
 
     return data;
@@ -176,7 +177,6 @@ export class TugasService {
       .leftJoin('tugas.project', 'project')
       .where('project.id = :id', { id })
       .getMany();
-
     return data;
   }
   async getTugasDoneByProject(id: string) {
@@ -199,24 +199,15 @@ export class TugasService {
     const newTugas = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoin('karyawan.user', 'user')
-      .addSelect('user.nama')
       .where('user.id = :id', { id })
       .orderBy('tugas.updated_at', 'DESC')
+      .select(['tugas.nama_tugas', 'tugas.status', 'tugas.updated_at'])
       .limit(3)
       .getMany();
 
 
     return newTugas;
   }
-
-  // async getTugasByIdUser(id:string){
-  //   const newTugas = await this.tugasRepository.createQueryBuilder('tugas')
-  //     .leftJoin('tugas.karyawan', 'karyawan')
-  //     .leftJoin('karyawan.user', 'user')
-  //     .addSelect('user.nama')
-  //     .where('user.id = :id', { id })
-  //     .getMany();
-  // }
 
   async getTugasKaryawanByProject(id: string) {
     const tugas = await this.tugasRepository.createQueryBuilder('tugas')
@@ -225,8 +216,19 @@ export class TugasService {
       .where('user.id = :id', { id })
       .leftJoin('tugas.project', 'project')
       .andWhere('project.status != :status', { status: statusProject.approved })
-      .addSelect(['project.nama_project', 'project.status'])
+      .select([
+        'tugas.id',
+        'tugas.nama_tugas',
+        'tugas.updated_at',
+        'tugas.status',
+        'tugas.deadline',
+        'project.nama_project',
+        'project.status'
+      ])      
+      .orderBy('tugas.updated_at', 'DESC') 
+      .take(3)
       .getMany();
+
 
     const jumlahSelesai = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
@@ -265,23 +267,23 @@ export class TugasService {
     };
   }
 
-  async getTugasKaryawanByIdUser(id: string){
+  async getTugasKaryawanByIdUser(id: string) {
     const data = await this.tugasRepository.createQueryBuilder('tugas')
-      .leftJoin('tugas.karyawan','karyawan')
-      .leftJoinAndSelect('karyawan.user','user')
-      .where('user.id = :id',{id})
-      .addSelect('user.id','user.nama')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoinAndSelect('karyawan.user', 'user')
+      .where('user.id = :id', { id })
+      .addSelect('user.id', 'user.nama')
       .getMany();
     return data;
   }
 
-  async getTugasKaryawanBelumSelesai(id: string){
+  async getTugasKaryawanBelumSelesai(id: string) {
     const data = await this.tugasRepository.createQueryBuilder('tugas')
-      .leftJoin('tugas.karyawan','karyawan')
-      .leftJoinAndSelect('karyawan.user','user')
-      .where('user.id = :id',{id})
-      .andWhere('tugas.status !=:status',{status:statusTugas.approved })
-      .addSelect('user.id','user.nama')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoinAndSelect('karyawan.user', 'user')
+      .where('user.id = :id', { id })
+      .andWhere('tugas.status !=:status', { status: statusTugas.approved })
+      .addSelect('user.id', 'user.nama')
       .getMany();
     return data;
   }
