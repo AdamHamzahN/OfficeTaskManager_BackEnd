@@ -172,22 +172,39 @@ export class TugasService {
     }
   }
 
-  async getTugasByProject(id: string) {
-    const data = await this.tugasRepository.createQueryBuilder('tugas')
+  async getTugasByProject(id: string ,page:number,page_size:number){
+    const skip = (page - 1)* page_size; 
+    const [data , count ] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.project', 'project')
       .where('project.id = :id', { id })
-      .getMany();
-    return data;
+      .skip(skip)
+      .take(page_size)
+      .orderBy('tugas.created_at', 'DESC')
+      .getManyAndCount();
+      
+    return {data,count};
   }
+
   async getTugasDoneByProject(id: string) {
-    return await this.tugasRepository.find({
-      where: {
-        project: { id: id },
-        status: statusTugas.done
-      },
-      relations: ['project', 'karyawan', 'karyawan.user']
-    });
-  }
+    const tugas = await this.tugasRepository.createQueryBuilder('tugas')
+      .leftJoin('tugas.project', 'project') 
+      .leftJoin('tugas.karyawan', 'karyawan') 
+      .leftJoin('karyawan.user', 'user') 
+      .where('project.id = :id', { id }) 
+      .andWhere('tugas.status = :status', { status: statusTugas.done }) 
+      .select([
+        'tugas', 
+        'project.id', 'project.nama_project', 
+        'karyawan.id','user.nama',
+      ])
+      .getMany();
+
+    return tugas;
+}
+
+
+
+
 
   async updateNote(id: string, updateNoteDto: UpdateNoteDto) {
     const tugas = await this.tugasRepository.findOneBy({ id });
@@ -224,8 +241,8 @@ export class TugasService {
         'tugas.deadline',
         'project.nama_project',
         'project.status'
-      ])      
-      .orderBy('tugas.updated_at', 'DESC') 
+      ])
+      .orderBy('tugas.updated_at', 'DESC')
       .take(3)
       .getMany();
 

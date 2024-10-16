@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, BadRequestException, UploadedFile, HttpStatus, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, BadRequestException, UploadedFile, HttpStatus, Put, Query } from '@nestjs/common';
 import { TugasService } from './tugas.service';
 import { CreateTugasDto } from './dto/create-tugas.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -198,9 +198,14 @@ export class TugasController {
   }
 
   @Get(':id/tugas-project')
-  async getTugasByProject(@Param('id') id: string) {
-    return await this.tugasService.getTugasByProject(id);
+  async getTugasByProject(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number
+  ) {
+    return await this.tugasService.getTugasByProject(id,page,page_size);
   }
+  
 
   @Get(':id/tugas-selesai')
   async getTugasDoneByID(@Param('id') id: string) {

@@ -289,17 +289,20 @@ export class ProjectController {
   @Get('team-lead/:id/projects')
   async getProjectTeamLeadByStatus(
     @Param('id') id: string,
-    @Query('status') status?: string,
+    @Query('status') status: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number
   ) {
-    if (status) {
-      return await this.projectService.getProjectTeamLeadByStatus(id, status as statusProject);
-    }
-    return await this.projectService.getProjectProsesTeamLead(id);
+    return await this.projectService.getProjectTeamLeadByStatus(id, status as statusProject, page, page_size);
   }
 
   @Get(`karyawan/:id/project-selesai`)
-  async getProjectSelesaiKaryawan(@Param('id') id: string) {
-    return await this.projectService.getProjectSelesaiKaryawan(id);
+  async getProjectSelesaiKaryawan(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number
+  ) {
+    return await this.projectService.getProjectSelesaiKaryawan(id,page,page_size);
   }
 
   @Get(`karyawan/:id/project-dikerjakan`)
