@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query } from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 /**
@@ -66,7 +66,9 @@ export class TeamController {
   }
 
   @Get(':id/team-project')
-  async teamProject(@Param('id') id: string) {
+  async teamProject(
+    @Param('id') id: string,
+  ) {
     return await this.teamService.teamProject(id);
   }
 }
