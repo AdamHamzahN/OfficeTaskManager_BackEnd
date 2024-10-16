@@ -78,16 +78,17 @@ export class TeamService {
   async history(id: string) {
     const data = await this.teamRepository.createQueryBuilder('team')
       .leftJoinAndSelect('team.karyawan', 'karyawan')
+      .leftJoinAndSelect('karyawan.user', 'user')
       .leftJoinAndSelect('team.project', 'project')
       .leftJoinAndSelect('project.tugas', 'tugas')
-      .where('karyawan.id = :id', { id })
+      .where('user.id = :id', { id })
       .andWhere('tugas.status IN (:...statuses)', { statuses: ['done', 'redo'] })
       .getMany();
-
+      
     return data;
   }
 
-  async teamProject(id: string) {
+  async teamProject(id: string    ) {
     const data = await this.teamRepository.createQueryBuilder('team')
       .leftJoinAndSelect('team.project', 'project')
       .leftJoinAndSelect('team.karyawan', 'karyawan')// Menampilkan relasi tugas.karyawan

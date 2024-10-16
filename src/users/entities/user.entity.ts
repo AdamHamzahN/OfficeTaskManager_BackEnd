@@ -11,6 +11,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 
 /**
@@ -27,12 +28,14 @@ export class User {
   /**
    * Id UUID 
    */
+  @Index()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   /**
    * username Varchar(100)
    */
+  @Index()
   @Column({ type: 'varchar', length: 100 })
   username: string;
 

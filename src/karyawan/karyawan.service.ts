@@ -162,10 +162,11 @@ export class KaryawanService {
 
   async getKaryawanAvailable() {
     const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
-        .leftJoin('karyawan.user', 'user').addSelect('user.nama')
-        .leftJoin('karyawan.job', 'job').addSelect('job.nama_job')   
+        .leftJoin('karyawan.user', 'user')
+        .leftJoin('karyawan.job', 'job') 
         .where('karyawan.status_project = :statusProject', { statusProject: statusProject.available}) 
         .andWhere('user.status = :statusKeaktifan', { statusKeaktifan: StatusKeaktifan.ACTIVE }) 
+        .select(['karyawan.id','user.nama','job.nama_job'])
         .getMany();
     return karyawan;
 }
