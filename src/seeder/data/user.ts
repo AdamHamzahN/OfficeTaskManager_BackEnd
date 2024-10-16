@@ -17,7 +17,7 @@ export const userMasterData: Partial<User>[] = [
     username: 'admin1',
     password: hashedPassword,  
     email: 'admin123@gmail.com',
-    nama: 'sutisno jaya kusumo',
+    nama: 'sutisno jaya kusumoko',
     salt:salt,
     status: StatusKeaktifan.ACTIVE,
     role: { id: '23131e76-ee28-407c-aed7-a5d573cb1cd5' } as Role,

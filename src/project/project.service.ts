@@ -171,7 +171,7 @@ export class ProjectService {
    */
   async getProjectByStatus(status: statusProject) {
     const data = await this.projectRepository
-      .createQueryBuilder('project')
+      .createQueryBuilder('project').leftJoinAndSelect('project.user', 'user')
       .where('project.status = :status', { status: status })
       .getMany();
 
