@@ -57,12 +57,8 @@ export class TeamController {
   }
 
   @Get(':id/history')
-  async history(@Param('id') id: string) {
-    try {
-      return await this.teamService.history(id);
-    } catch (e) {
-      return { e, message: 'gagal' }
-    }
+  async history(@Param('id') id: string,@Query('search') search: string) {
+      return await this.teamService.history(id,search);
   }
 
   @Get(':id/team-project')

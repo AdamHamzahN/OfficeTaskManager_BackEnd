@@ -117,7 +117,7 @@ export class ProjectService {
       if (project.file_hasil_project != null) {
         const oldFilePath = path.resolve(project.file_hasil_project);
         if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath); 
+          fs.unlinkSync(oldFilePath);
         }
         //Buat file baru
         project.file_hasil_project = file.path;
@@ -193,7 +193,7 @@ export class ProjectService {
   /**
    * Memanggil Project milik team lead berdasarkan id team lead
    */
-  async getProjectTeamLead(id: string ) {
+  async getProjectTeamLead(id: string) {
     const project = await this.projectRepository
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.user', 'user')
@@ -235,9 +235,9 @@ export class ProjectService {
     return data;
   }
 
-  async getProjectTeamLeadByStatus(id: string, status: statusProject,page: number , page_size: number){
+  async getProjectTeamLeadByStatus(id: string, status: statusProject, page: number, page_size: number) {
     const skip = (page - 1) * page_size;
-    const [data , count ] = await this.projectRepository.createQueryBuilder('project')
+    const [data, count] = await this.projectRepository.createQueryBuilder('project')
       .leftJoinAndSelect('project.user', 'user')
       .where('user.id = :id', { id: id })
       .andWhere('project.status = :status', { status: status })
@@ -246,37 +246,36 @@ export class ProjectService {
       .orderBy('project.created_at', 'DESC')
       .getManyAndCount();
 
-    return { data , count };
+    return { data, count };
   }
 
-  async getProjectSelesaiKaryawan(id: string , page:number , page_size:number) {
+  async getProjectSelesaiKaryawan(id: string, page: number, page_size: number) {
     const skip = (page - 1) * page_size;
-    const [data , count] = await this.projectRepository
+    const [data, count] = await this.projectRepository
       .createQueryBuilder('project')
       .leftJoin('project.tugas', 'tugas')
       .leftJoin('project.user', 'projectUser')
       .leftJoin('tugas.karyawan', 'karyawan')
-      .leftJoin('karyawan.user', 'karyawanUser')
-      .where('karyawanUser.id = :id', { id })
+      .leftJoin('karyawan.user', 'user')
+      .where('user.id = :id', { id })
       .andWhere('project.status = :status', { status: statusProject.approved })
       .select([
         'project.id',
         'project.nama_project',
         'project.status',
         'project.updated_at',
-        'projectUser.username',
-
+        'projectUser.nama',
       ])
       .skip(skip)
       .take(page_size)
       .orderBy('project.updated_at', 'DESC')
       .getManyAndCount();
 
-    return {data , count };
+    return { data, count };
   }
 
   async getProjectDikerjakanKaryawan(id: string) {
-    const [data,count] = await this.projectRepository
+    const [data, count] = await this.projectRepository
       .createQueryBuilder('project')
       .leftJoin('project.tugas', 'tugas')
       .leftJoin('project.user', 'projectUser')
@@ -290,13 +289,13 @@ export class ProjectService {
         'project.status',
         'project.start_date',
         'project.end_date',
-        'projectUser.username',
-
+        'projectUser.nama',
       ])
       .getManyAndCount();
 
-    return {data , count};
+    return { data, count };
   }
+
 
 
 }
