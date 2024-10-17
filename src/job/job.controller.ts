@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, HttpStatus, Query } from '@nestjs/common';
 import { JobService } from './job.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -6,7 +6,7 @@ import { UpdateJobDto } from './dto/update-job.dto';
 /**
  * Memanggil semua job
  * url: http://localhost:3222/job [ok]
- * 
+ *  
  * Membuat job baru
  * url: http://localhost:3222/job/tambah [ok]
  * 
@@ -24,9 +24,9 @@ export class JobController {
    * Memanggil semua job
    */
   @Get()
-  async listJob() {
+  async listJob(@Query('page') page:number,@Query('page_size') page_size:number) {
       return {
-        data: await this.jobService.list(),
+        data: await this.jobService.list(page,page_size),
         statusCode: HttpStatus.OK,
         message: 'success',
       };  

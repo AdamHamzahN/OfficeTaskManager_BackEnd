@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseUUIDPipe, Put, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseUUIDPipe, Put, HttpException, Query } from '@nestjs/common';
 import { KaryawanService } from './karyawan.service';
 import { CreateKaryawanDto } from './dto/create-karyawan.dto';
 import { UpdateKaryawanDto } from './dto/update-karyawan.dto';
@@ -36,9 +36,9 @@ export class KaryawanController {
    * Memanggil semua karyawan
    */
   @Get()
-  async findAll() {
+  async findAll(@Query('page') page:number,@Query('page_size') page_size:number) {
     return {
-      data : await this.karyawanService.findAll(),
+      data : await this.karyawanService.findAll(page,page_size),
       statusCode: HttpStatus.OK,
       message:'success',
     };

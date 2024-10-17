@@ -184,7 +184,7 @@ export class ProjectService {
   async getProjectByStatus(status: statusProject) {
     // const skip = (page - 1) * page_size;
     const data = await this.projectRepository
-      .createQueryBuilder('project')
+      .createQueryBuilder('project').leftJoinAndSelect('project.user', 'user')
       .where('project.status = :status', { status: status })
       .getMany();
 
