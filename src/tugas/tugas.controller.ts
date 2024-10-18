@@ -182,8 +182,12 @@ export class TugasController {
    * Menampilkan tugas berdasarkan id karyawan
    */
   @Get(':id/tugas-karyawan')
-  async getTugasByKaryawan(@Param('id') id: string) {
-    return await this.tugasService.getTugasByKaryawan(id);
+  async getTugasByKaryawan(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number
+  ) {
+    return await this.tugasService.getTugasByKaryawan(id,page,page_size);
   }
 
   @Get('team-lead/:id/update-terbaru')
@@ -203,9 +207,9 @@ export class TugasController {
     @Query('page') page: number,
     @Query('page_size') page_size: number
   ) {
-    return await this.tugasService.getTugasByProject(id,page,page_size);
+    return await this.tugasService.getTugasByProject(id, page, page_size);
   }
-  
+
 
   @Get(':id/tugas-selesai')
   async getTugasDoneByID(@Param('id') id: string) {
@@ -228,12 +232,19 @@ export class TugasController {
   }
 
   @Get(':id/karyawan/tugas-karyawan')
-  async getTugasKaryawanByIdUser(@Param('id') id: string) {
-    return await this.tugasService.getTugasKaryawanByIdUser(id);
+  async getTugasKaryawanByIdUser(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number
+) {
+    return await this.tugasService.getTugasKaryawanByIdUser(id,page,page_size);
   }
 
   @Get(':id/karyawan/tugas-karyawan-belum-selesai')
-  async getTugasKaryawanBelumSelesai(@Param('id') id: string) {
-    return await this.tugasService.getTugasKaryawanBelumSelesai(id);
+  async getTugasKaryawanBelumSelesai(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number) {
+    return await this.tugasService.getTugasKaryawanBelumSelesai(id,page,page_size);
   }
 }
