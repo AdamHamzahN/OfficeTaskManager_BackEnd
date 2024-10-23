@@ -12,6 +12,7 @@ import { UpdateNamaTeamDto } from './dto/update-nama-team.dto';
 import { KaryawanService } from '#/karyawan/karyawan.service';
 import { Karyawan } from '#/karyawan/entities/karyawan.entity';
 import { UploadFileProject } from './dto/upload-file-tugas.dto';
+import { UpdateNoteDto } from './dto/update-note.dto';
 // import { Role } from '#/role/entities/role.entity';
 
 @Injectable()
@@ -90,6 +91,7 @@ export class ProjectService {
         'project.note',
         'project.file_hasil_project',
         'project.status',
+        'project.updated_at',
         'user.id',
         'user.nama'])
       .getOne();
@@ -298,6 +300,11 @@ export class ProjectService {
     return {data , count};
   }
 
+  async updateNote(id:string, updateNoteDto: UpdateNoteDto) {
+    const project = await this.projectRepository.findOneBy({id});
+    project.note = updateNoteDto.note;
+    return this.projectRepository.save(project);
+  }
 
 }
 

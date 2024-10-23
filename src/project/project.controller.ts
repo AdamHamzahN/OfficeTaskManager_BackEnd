@@ -10,6 +10,7 @@ import { statusProject } from './entities/project.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UploadFileProject } from './dto/upload-file-tugas.dto';
+import { UpdateNoteDto } from './dto/update-note.dto';
 /***
  * Tambah Project
  * url: http://localhost:3222/project/tambah [ok]
@@ -57,6 +58,9 @@ import { UploadFileProject } from './dto/upload-file-tugas.dto';
  * Menampilkan data project dari team lead berdasarkan status
  * status : pending | on_progress | done | redo | approved
  * url: http://localhost:3222/project/team-lead/:id/projects?status= [ok]
+ * 
+ * Note
+ * url: http://localhost:3222/project/:id/update-note
  */
 
 @Controller('project')
@@ -308,6 +312,11 @@ export class ProjectController {
   @Get(`karyawan/:id/project-dikerjakan`)
   async getProjectDikerjajanKaryawan(@Param('id') id: string) {
     return await this.projectService.getProjectDikerjakanKaryawan(id);
+  }
+
+  @Put(':id/update-note')
+  async updateNote(@Param('id') id:string, @Body() UpdateNoteDto: UpdateNoteDto ) {
+    return await this.projectService.updateNote(id, UpdateNoteDto)
   }
 
 }
