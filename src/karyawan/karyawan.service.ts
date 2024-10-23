@@ -70,13 +70,17 @@ export class KaryawanService {
   /**
    * Menampilkan data semua Karyawan
    */
-  async findAll() {
-    const [result, count] = await this.karyawanRepository.createQueryBuilder('karyawan')
+  async findAll(page: number, page_size: number) {
+    const skip = (page - 1) * page_size
+    const [data, count] = await this.karyawanRepository.createQueryBuilder('karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
       .leftJoinAndSelect('karyawan.job', 'job')
+      .skip(skip)
+      .take (page_size)
+      .orderBy('karyawan.created_at','DESC')
       .getManyAndCount();
     return {
-      result,
+      data,
       count,
     };
   }

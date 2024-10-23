@@ -75,20 +75,42 @@ export class TeamService {
       .getMany();
   }
 
-  async history(id: string) {
+  async history(id: string, search: string) {
     const data = await this.teamRepository.createQueryBuilder('team')
       .leftJoinAndSelect('team.karyawan', 'karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
       .leftJoinAndSelect('team.project', 'project')
       .leftJoinAndSelect('project.tugas', 'tugas')
-      .where('user.id = :id', { id })
-      .andWhere('tugas.status IN (:...statuses)', { statuses: ['done', 'redo'] })
-      .getMany();
-      
-    return data;
+      .where('user.id = :id', { id });
+
+    if (search) {
+      data.andWhere('project.nama_project LIKE :search', { search: `%${search}%` });
+    }
+
+    data.orderBy('team.created_at', 'DESC');
+    const result = await data.getMany();
+
+    const formattedResult = {
+      data: result.map(item => ({
+        project: {
+          id: item.project.id,
+          nama_project: item.project.nama_project,
+        },
+        tugas: item.project.tugas
+          .filter(t => t.status === 'done' || t.status === 'redo')
+          .map(t => ({
+            nama_tugas: t.nama_tugas,
+            status: t.status,
+            updated_at: t.updated_at
+          })) || []
+      }))
+    };
+
+    return formattedResult;
   }
 
-  async teamProject(id: string    ) {
+
+  async teamProject(id: string) {
     const data = await this.teamRepository.createQueryBuilder('team')
       .leftJoinAndSelect('team.project', 'project')
       .leftJoinAndSelect('team.karyawan', 'karyawan')// Menampilkan relasi tugas.karyawan
@@ -98,11 +120,11 @@ export class TeamService {
       .addSelect('job.nama_job')
       .where('project.id = :id', { id })
       .getMany();
-  
+
     return data;
   }
-  
-  
+
+
 
 
 

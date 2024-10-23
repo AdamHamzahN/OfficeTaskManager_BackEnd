@@ -7,10 +7,8 @@ import { UpdateStatusTugasDto } from './dto/update-status-tugas.dto';
 import { UploadFileBukti } from './dto/upload-file-bukti.dto';
 import * as path from 'path';
 import * as fs from 'fs';
-import { check } from 'prettier';
 import { Team } from '#/team/entities/team.entity';
 import { UpdateNoteDto } from './dto/update-note.dto';
-import { User } from '#/users/entities/user.entity';
 import { statusProject } from '#/project/entities/project.entity';
 import { UploadFileTugas } from './dto/upload-file-tugas';
 
@@ -129,12 +127,18 @@ export class TugasService {
     }
   }
 
-  async getTugasByKaryawan(id: string) {
-    return await this.tugasRepository.createQueryBuilder('tugas')
+  async getTugasByKaryawan(id: string, page: number, page_size: number) {
+    const skip = (page - 1) * page_size;
+    const [data, count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoinAndSelect('tugas.karyawan', 'karyawan')
+      .leftJoinAndSelect('karyawan.user','user')
       .leftJoinAndSelect('tugas.project', 'project')
       .where('karyawan.id = :id', { id })
-      .getMany();
+      .skip(skip)
+      .take(page_size)
+      .orderBy('tugas.created_at', 'DESC')
+      .getManyAndCount();
+    return { data, count }
   }
 
   async getTugasByTeamLead(id: string) {
@@ -150,7 +154,6 @@ export class TugasService {
   }
 
   async countTugasKaryawan(idKaryawan: string, idProject: string) {
-    // Menghitung jumlah tugas berdasarkan karyawan dan proyek
     const countAll = await this.tugasRepository.count({
       where: {
         karyawan: { id: idKaryawan },
@@ -172,39 +175,35 @@ export class TugasService {
     }
   }
 
-  async getTugasByProject(id: string ,page:number,page_size:number){
-    const skip = (page - 1)* page_size; 
-    const [data , count ] = await this.tugasRepository.createQueryBuilder('tugas')
+  async getTugasByProject(id: string, page: number, page_size: number) {
+    const skip = (page - 1) * page_size;
+    const [data, count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.project', 'project')
       .where('project.id = :id', { id })
       .skip(skip)
       .take(page_size)
       .orderBy('tugas.created_at', 'DESC')
       .getManyAndCount();
-      
-    return {data,count};
+
+    return { data, count };
   }
 
   async getTugasDoneByProject(id: string) {
     const tugas = await this.tugasRepository.createQueryBuilder('tugas')
-      .leftJoin('tugas.project', 'project') 
-      .leftJoin('tugas.karyawan', 'karyawan') 
-      .leftJoin('karyawan.user', 'user') 
-      .where('project.id = :id', { id }) 
-      .andWhere('tugas.status = :status', { status: statusTugas.done }) 
+      .leftJoin('tugas.project', 'project')
+      .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.user', 'user')
+      .where('project.id = :id', { id })
+      .andWhere('tugas.status = :status', { status: statusTugas.done })
       .select([
-        'tugas', 
-        'project.id', 'project.nama_project', 
-        'karyawan.id','user.nama',
+        'tugas',
+        'project.id', 'project.nama_project',
+        'karyawan.id', 'user.nama',
       ])
       .getMany();
 
     return tugas;
-}
-
-
-
-
+  }
 
   async updateNote(id: string, updateNoteDto: UpdateNoteDto) {
     const tugas = await this.tugasRepository.findOneBy({ id });
@@ -217,7 +216,7 @@ export class TugasService {
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoin('karyawan.user', 'user')
       .where('user.id = :id', { id })
-      .orderBy('tugas.updated_at', 'DESC')
+      .orderBy('tugas.updated_at', 'ASC')
       .select(['tugas.nama_tugas', 'tugas.status', 'tugas.updated_at'])
       .limit(3)
       .getMany();
@@ -284,24 +283,32 @@ export class TugasService {
     };
   }
 
-  async getTugasKaryawanByIdUser(id: string) {
-    const data = await this.tugasRepository.createQueryBuilder('tugas')
+  async getTugasKaryawanByIdUser(id: string,page:number,page_size:number) {
+    const skip = (page - 1) * page_size;
+    const [data,count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
       .where('user.id = :id', { id })
       .addSelect('user.id', 'user.nama')
-      .getMany();
-    return data;
+      .skip(skip)
+      .take(page_size)
+      .orderBy('tugas.created_at', 'DESC')
+      .getManyAndCount();
+    return {data,count};
   }
 
-  async getTugasKaryawanBelumSelesai(id: string) {
-    const data = await this.tugasRepository.createQueryBuilder('tugas')
+  async getTugasKaryawanBelumSelesai(id: string, page: number, page_size: number) {
+    const skip = (page - 1) * page_size;
+    const [data, count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
       .where('user.id = :id', { id })
-      .andWhere('tugas.status !=:status', { status: statusTugas.approved })
+      .andWhere('tugas.status !=:status', { status: statusTugas.approved || statusTugas.done })
       .addSelect('user.id', 'user.nama')
-      .getMany();
-    return data;
+      .skip(skip)
+      .take(page_size)
+      .orderBy('tugas.updated_at', 'DESC')
+      .getManyAndCount();
+    return { data, count };
   }
 }
