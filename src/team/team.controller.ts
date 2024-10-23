@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query, Put } from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 /**
@@ -19,6 +19,9 @@ import { CreateTeamDto } from './dto/create-team.dto';
  * 
  * Memanggil team berdasarkan project
  * url: http://localhost:3222/team/:id/team-project
+ * 
+ * Update Status Karyawan (bila status project di ubah ke approved)
+ * url: http://localhost:3222/team/:id/ubah-status-karyawan
  */
 
 @Controller('team')
@@ -67,6 +70,12 @@ export class TeamController {
   ) {
     return await this.teamService.teamProject(id);
   }
+
+  @Put(':id/update-status-karyawan')
+  async ubahStatusKaryawan(@Param('id') id: string) {
+    return await this.teamService.ubahStatusKaryawan(id);
+  }
+
 }
 
 

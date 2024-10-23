@@ -3,7 +3,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Team } from './entities/team.entity';
 import { Repository } from 'typeorm';
-import { Karyawan } from '#/karyawan/entities/karyawan.entity';
+import { Karyawan, statusProject as statusProjectKaryawan } from '#/karyawan/entities/karyawan.entity';
 import { Project, statusProject } from '#/project/entities/project.entity';
 import { TugasService } from '#/tugas/tugas.service';
 
@@ -124,16 +124,22 @@ export class TeamService {
     return data;
   }
 
-
-
-
-
-
-
+  async ubahStatusKaryawan(id: string) {
+    const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
+      .innerJoin('karyawan.team', 'team') 
+      .innerJoin('team.project', 'project') 
+      .where('project.id = :id', { id })
+      .getMany();
+    if (karyawan.length > 0) {
+      await this.karyawanRepository.save(
+        karyawan.map(newStatusKaryawan => {
+          newStatusKaryawan.status_project = statusProjectKaryawan.available;
+          return newStatusKaryawan; 
+        })
+      );
+    }
+    return { message: 'Status karyawan berhasil diperbarui' };
+  }
 }
-
-
-
-
 
 

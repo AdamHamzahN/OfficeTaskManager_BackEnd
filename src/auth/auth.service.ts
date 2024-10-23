@@ -14,22 +14,26 @@ export class AuthService {
         const user = await this.userService.getUserByUsername(authDto.username);
         if (user) {
             const salt = user.salt;
-            const stringSalt = salt.replace(/-/g,'')
+            const stringSalt = salt.replace(/-/g, '')
             const inputPassword = authDto.password;
             const { password } = user;
-            
+
             const hashInputPassword = this.userService.hashPassword(inputPassword, stringSalt);
 
             const isPasswordCorrect = password == hashInputPassword;
-            if (user && isPasswordCorrect){
+            if (user && isPasswordCorrect) {
                 const { password, ...result } = user;
-                const payload = { sub:user.id , username:user.username , role:user.role.nama };
+                const payload = { sub: user.id, username: user.username, role: user.role.nama };
                 return {
-                    ...result,
-                    access_token : await this.jwtService.signAsync(payload,{
-                        secret:'secrettoken1234',
-                        expiresIn:'24h',
-                    })
+                    data: {
+                        payload,
+                        access_token: await this.jwtService.signAsync(payload, {
+                            secret: 'secrettoken1234',
+                            expiresIn: '24h',
+                        }),
+                    },
+                    status: 200,
+                    message: 'login success'
                 };
             }
             throw new UnauthorizedException('Invalid password');

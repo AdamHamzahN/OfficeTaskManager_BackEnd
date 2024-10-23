@@ -48,7 +48,7 @@ export class KaryawanService {
     const passwordHash = this.userService.hashPassword(password, salt);
 
     const user = new User();
-    user.username = username; //createkarywandto.username
+    user.username = username; 
     user.password = passwordHash;
     user.nama = nama;
     user.salt = salt;
@@ -146,8 +146,6 @@ export class KaryawanService {
    * Update Status Keaktifan (active / inactive)
    */
   async updateStatusKaryawan(id: string, status: UpdateStatusKeaktifan) {
-
-    // Ambil id_user dari karyawan
     const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
       .where('karyawan.id = :id', { id })
