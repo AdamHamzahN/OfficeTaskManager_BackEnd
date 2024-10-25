@@ -21,22 +21,28 @@ export class JobService {
    * Memanggil semua job
    */
   async list(page: number, page_size: number) {
-    const skip = (page - 1) * page_size
-    const [data, count] = await this.jobRepository.createQueryBuilder('job')
+    const skip = (page - 1) * page_size;
+    const { entities: jobs, raw } = await this.jobRepository.createQueryBuilder('job')
       .leftJoin('karyawan', 'karyawan', 'karyawan.id_job = job.id')
       .addSelect('COUNT(karyawan.id)', 'jumlah_karyawan')
       .groupBy('job.id')
       .skip(skip)
       .take(page_size)
-      .orderBy('job.created_at','DESC')
-      .getManyAndCount();
-
+      .orderBy('job.created_at', 'DESC')
+      .getRawAndEntities();
+  
+    const results = jobs.map((job, index) => ({
+      ...job,
+      jumlah_karyawan: raw[index].jumlah_karyawan,
+    }));
+  
     return {
-      data,
-      count,
+      data: results,
+      count: jobs.length,
     };
   }
   
+
   /**
    * Membuat job baru
    */

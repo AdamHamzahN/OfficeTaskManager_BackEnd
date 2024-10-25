@@ -87,7 +87,7 @@ export class KaryawanController {
   async updateProfileKaryawan(@Param('id') id: string, @Body() updateKaryawanDto: UpdateKaryawanDto) {
     return {
       data: await this.karyawanService.updateProfile(id, updateKaryawanDto),
-      statusCode: HttpStatus.OK,
+      statusCode: HttpStatus.OK ,
       message: 'success',
     };
   }
@@ -119,6 +119,11 @@ export class KaryawanController {
   @Get('/status-available')
   async getKaryawanAvailable(){
       return this.karyawanService.getKaryawanAvailable()
+  }
+
+  @Get(':id/karyawan-by-id-user')
+  async getKaryawanByIdUser(@Param('id') id : string){
+    return this.karyawanService.getKaryawanByIdUser(id);
   }
 
 }

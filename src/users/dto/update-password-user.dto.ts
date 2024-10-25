@@ -5,8 +5,8 @@ export class UpdatePasswordUserDto{
     current_password: string;
 
     @IsNotEmpty()
-    @MinLength(8)
-    @MaxLength(20)
+    // @MinLength(8)
+    // @MaxLength(20,{message:"Password Maximal 20 karakter "})
     new_password: string;
 
     @IsNotEmpty()

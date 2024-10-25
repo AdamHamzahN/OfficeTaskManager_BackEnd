@@ -12,7 +12,7 @@ export class AuthService {
 
     async login(authDto: AuthDto) {
         const user = await this.userService.getUserByUsername(authDto.username);
-        if (user) {
+        if (user) { 
             const salt = user.salt;
             const stringSalt = salt.replace(/-/g, '')
             const inputPassword = authDto.password;
@@ -36,8 +36,18 @@ export class AuthService {
                     message: 'login success'
                 };
             }
-            throw new UnauthorizedException('Invalid password');
+            else{
+                return {
+                    statusCode: 401,
+                    message: 'password salah'
+                }
+            }
         }
-        throw new UnauthorizedException('user tidak ditemukan');
+        else{
+            return {
+                statusCode: 401,
+                message: 'username salah'
+            }
+        }
     }
 }

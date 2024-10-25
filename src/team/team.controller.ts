@@ -21,7 +21,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
  * url: http://localhost:3222/team/:id/team-project
  * 
  * Update Status Karyawan (bila status project di ubah ke approved)
- * url: http://localhost:3222/team/:id/ubah-status-karyawan
+ * url: http://localhost:3222/team/:id/update-status-karyawan
  */
 
 @Controller('team')
