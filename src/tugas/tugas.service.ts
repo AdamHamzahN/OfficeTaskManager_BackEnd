@@ -270,25 +270,29 @@ export class TugasService {
       .leftJoin('tugas.project', 'project')
       .where('user.id = :id', { id })
       .andWhere('project.status != :statusProjectApproved', { statusProjectApproved: statusProject.approved })
-      .select('project.nama_project', 'nama_project') // Alias 'nama_project' untuk kemudahan akses
+      .select(['project.nama_project AS nama_project', 'project.id AS id_project'])
       .getRawOne();
 
     const nama_project = result ? result.nama_project : null;
+    const id_project = result ? result.id_project : null;
 
     return {
       tugas,
       jumlahSelesai,
       jumlahBelumSelesai,
-      nama_project
+      nama_project,
+      id_project
     };
   }
 
-  async getTugasKaryawanByIdUser(id: string,page:number,page_size:number) {
+  async getTugasProjectKaryawanByIdUser(id: string,id_project:string,page:number,page_size:number) {
     const skip = (page - 1) * page_size;
     const [data,count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
+      .leftJoin('tugas.project','project')
       .where('user.id = :id', { id })
+      .andWhere('project.id = :id_project',{id_project})
       .addSelect('user.id', 'user.nama')
       .skip(skip)
       .take(page_size)

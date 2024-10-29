@@ -67,8 +67,10 @@ export class TeamController {
   @Get(':id/team-project')
   async teamProject(
     @Param('id') id: string,
+    @Query('page') page?: number,
+    @Query('page_size') page_size?: number,
   ) {
-    return await this.teamService.teamProject(id);
+    return await this.teamService.teamProject(id,page,page_size);
   }
 
   @Put(':id/update-status-karyawan')

@@ -29,7 +29,7 @@ export class AuthService {
                         payload,
                         access_token: await this.jwtService.signAsync(payload, {
                             secret: 'secrettoken1234',
-                            expiresIn: '24h',
+                            expiresIn: '7d',
                         }),
                     },
                     status: 200,

@@ -266,6 +266,8 @@ export class ProjectService {
         'project.nama_project',
         'project.status',
         'project.updated_at',
+        'project.start_date',
+        'project.end_date',
         'projectUser.nama',
       ])
       .skip(skip)
