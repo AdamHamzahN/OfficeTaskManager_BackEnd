@@ -23,14 +23,16 @@ export class AuthService {
             const isPasswordCorrect = password == hashInputPassword;
             if (user && isPasswordCorrect) {
                 const { password, ...result } = user;
+                const expiry_time = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
                 const payload = { sub: user.id, username: user.username, role: user.role.nama };
                 return {
                     data: {
-                        payload,
+                        user:payload,
                         access_token: await this.jwtService.signAsync(payload, {
                             secret: 'secrettoken1234',
                             expiresIn: '7d',
                         }),
+                        expires_in: expiry_time,
                     },
                     status: 200,
                     message: 'login success'

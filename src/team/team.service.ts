@@ -16,11 +16,6 @@ export class TeamService {
 
     @InjectRepository(Karyawan)
     private karyawanRepository: Repository<Karyawan>,
-
-    @InjectRepository(Project)
-    private projectRepository: Repository<Project>,
-
-    private tugasService: TugasService
   ) { }
 
   async create(createTeamDto: CreateTeamDto) {
@@ -119,7 +114,7 @@ export class TeamService {
         .leftJoin('team.project', 'project')
         .addSelect('project.id' )
         .leftJoin('team.karyawan', 'karyawan')
-        .addSelect('karyawan.id')
+        .addSelect(['karyawan.id','karyawan.nik'])
         .leftJoin('karyawan.user', 'user')
         .addSelect('user.nama')
         .leftJoin('karyawan.job', 'job')

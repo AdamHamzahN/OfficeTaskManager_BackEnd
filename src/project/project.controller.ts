@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, HttpStatus, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, HttpStatus, Put, Query, UseGuards } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -8,9 +8,9 @@ import { UploadHasilProject } from './dto/upload-bukti.dto';
 import { UpdateNamaTeamDto } from './dto/update-nama-team.dto';
 import { statusProject } from './entities/project.entity';
 import * as fs from 'fs';
-import * as path from 'path';
 import { UploadFileProject } from './dto/upload-file-tugas.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
 /***
  * Tambah Project
  * url: http://localhost:3222/project/tambah [ok]
@@ -215,6 +215,7 @@ export class ProjectController {
   /**
    * Ambil 3 Project Update Terbaru
    */
+
   @Get('update-terbaru')
   async updateProjectTerbaru() {
     return await this.projectService.getProjectTerbaru();
@@ -242,7 +243,7 @@ export class ProjectController {
 
   /**
    * Menghitung jumlah project selesai ( approved )
-   */
+   */ 
   @Get('count-selesai')
   async getProjectSelesai() {
     return await this.projectService.getProjectSelesai();
@@ -282,6 +283,7 @@ export class ProjectController {
   /**
    * Menampilkan project Team Lead yang sedang dalam proses  (pending | redo | done |on progress | redo)
    */
+  // @UseGuards(JwtAuthGuard) 
   @Get('team-lead/:id/data-onprogress')
   async getDataProjectTeamLeadDalamProses(@Param('id') id: string) {
     return await this.projectService.getProjectProsesTeamLead(id);

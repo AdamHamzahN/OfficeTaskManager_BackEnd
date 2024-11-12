@@ -167,7 +167,6 @@ export class ProjectService {
     return { data, count };
   }
 
-
   /**
    * Menghitung project yang selesai (approved)
    */
@@ -281,11 +280,11 @@ export class ProjectService {
   async getProjectDikerjakanKaryawan(id: string) {
     const [data, count] = await this.projectRepository
       .createQueryBuilder('project')
-      .leftJoin('project.tugas', 'tugas')
-      .leftJoin('project.user', 'projectUser')
-      .leftJoin('tugas.karyawan', 'karyawan')
-      .leftJoin('karyawan.user', 'karyawanUser')
-      .where('karyawanUser.id = :id', { id })
+      .leftJoin('project.user', 'projectUser')  
+      .leftJoin('project.team', 'team')       
+      .leftJoin('team.karyawan', 'karyawan')   
+      .leftJoin('karyawan.user', 'karyawanUser') 
+      .where('karyawanUser.id = :id', { id }) 
       .andWhere('project.status != :status', { status: statusProject.approved })
       .select([
         'project.id',
@@ -298,14 +297,13 @@ export class ProjectService {
       .getManyAndCount();
 
     return { data, count };
-  }
+}
 
   async updateNote(id:string, updateNoteDto: UpdateNoteDto) {
     const project = await this.projectRepository.findOneBy({id});
     project.note = updateNoteDto.note;
     return this.projectRepository.save(project);
   }
-
 
 }
 
