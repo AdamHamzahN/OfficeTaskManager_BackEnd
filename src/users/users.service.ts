@@ -85,7 +85,7 @@ export class UsersService {
   async findOne(id: string) {
     return await this.usersRepository.findOneOrFail({
       where: { id },
-      select: ['id', 'username', 'email', 'nama'],
+      select: ['id', 'username', 'email', 'nama','status'],
     });
   }
 
