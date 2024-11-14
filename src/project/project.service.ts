@@ -182,14 +182,17 @@ export class ProjectService {
   /**
    * Memanggil project berdasarkan status (Super Admin) 
    */
-  async getProjectByStatus(status: statusProject) {
-    // const skip = (page - 1) * page_size;
-    const data = await this.projectRepository
+  async getProjectByStatus(status: statusProject, page: number, page_size: number) {
+    const skip = (page - 1) * page_size;
+    const [data, count] = await this.projectRepository
       .createQueryBuilder('project').leftJoinAndSelect('project.user', 'user')
       .where('project.status = :status', { status: status })
-      .getMany();
+      .skip(skip)
+      .take(page_size)
+      .orderBy('project.created_at', 'DESC')
+      .getManyAndCount();
 
-    return data;
+      return {data, count};
   }
   /**
    * Memanggil Project milik team lead berdasarkan id team lead

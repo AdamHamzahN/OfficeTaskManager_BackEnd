@@ -28,6 +28,10 @@ export class JobController {
       return await this.jobService.list(page,page_size);   
   }
 
+  @Get('/get-all')
+  async getJob(){
+    return await this.jobService.getAll()
+  }
    /**
    * Membuat job baru
    */

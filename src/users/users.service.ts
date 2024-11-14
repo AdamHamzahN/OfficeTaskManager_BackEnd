@@ -179,6 +179,14 @@ export class UsersService {
       .getMany();
   }
 
+  async findTeamLeadActive() {
+    return await this.usersRepository.createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role')
+    .where('role.nama = :nama', { nama: 'Team Lead' })
+    .andWhere('status = :status', {status: StatusKeaktifan.ACTIVE})
+    .getMany();
+  }
+
   async updateStatusKeaktifan(id: string, updateStatusKeaktifan: UpdateStatusKeaktifan) {
     await this.usersRepository.update(id, updateStatusKeaktifan);
     return await this.usersRepository.findOne({ where: { id } });

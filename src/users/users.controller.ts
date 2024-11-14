@@ -117,7 +117,11 @@ export class UsersController {
     return await this.usersService.findTeamLead();
       // statusCode: HttpStatus.OK,
       // message: 'success',
-  
+  }
+
+  @Get('team-lead/active')
+  async getTeamLeadActive() {
+    return await this.usersService.findTeamLeadActive();
   }
 
   // @Get('karyawan')

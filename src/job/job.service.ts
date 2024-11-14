@@ -36,12 +36,20 @@ export class JobService {
       jumlah_karyawan: raw[index].jumlah_karyawan,
     }));
   
+    const total = await this.jobRepository.count()
     return {
       data: results,
-      count: jobs.length,
+      count: total,
     };
   }
   
+  async getAll(){
+    const data = await this.jobRepository.find();
+
+    return{
+      data
+    }
+  }
 
   /**
    * Membuat job baru
