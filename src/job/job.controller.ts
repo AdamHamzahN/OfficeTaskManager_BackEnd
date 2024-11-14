@@ -25,14 +25,13 @@ export class JobController {
    */
   @Get()
   async listJob(@Query('page') page:number,@Query('page_size') page_size:number) {
-      return {
-        data: await this.jobService.list(page,page_size),
-        statusCode: HttpStatus.OK,
-        message: 'success',
-      };  
-     
+      return await this.jobService.list(page,page_size);   
   }
 
+  @Get('/get-all')
+  async getJob(){
+    return await this.jobService.getAll()
+  }
    /**
    * Membuat job baru
    */

@@ -16,11 +16,6 @@ export class TeamService {
 
     @InjectRepository(Karyawan)
     private karyawanRepository: Repository<Karyawan>,
-
-    @InjectRepository(Project)
-    private projectRepository: Repository<Project>,
-
-    private tugasService: TugasService
   ) { }
 
   async create(createTeamDto: CreateTeamDto) {
@@ -110,31 +105,43 @@ export class TeamService {
   }
 
 
-  async teamProject(id: string) {
-    const data = await this.teamRepository.createQueryBuilder('team')
-      .leftJoinAndSelect('team.project', 'project')
-      .leftJoinAndSelect('team.karyawan', 'karyawan')// Menampilkan relasi tugas.karyawan
-      .leftJoin('karyawan.user', 'user')
-      .addSelect('user.nama')
-      .leftJoin('karyawan.job', 'job')
-      .addSelect('job.nama_job')
-      .where('project.id = :id', { id })
-      .getMany();
+  async teamProject(id: string, page?: number, page_size?: number) {
+    let skip;
+    if (page != null && page_size != null) {
+        skip = (page - 1) * page_size;
+    }
+    const query = this.teamRepository.createQueryBuilder('team')
+        .leftJoin('team.project', 'project')
+        .addSelect('project.id' )
+        .leftJoin('team.karyawan', 'karyawan')
+        .addSelect(['karyawan.id','karyawan.nik'])
+        .leftJoin('karyawan.user', 'user')
+        .addSelect('user.nama')
+        .leftJoin('karyawan.job', 'job')
+        .addSelect('job.nama_job')
+        .where('project.id = :id', { id });
 
-    return data;
-  }
+    if (skip != null && page_size != null) {
+        query.skip(skip).take(page_size);
+    }
+
+    const [data, count] = await query.getManyAndCount();
+
+    return { data, count };
+}
+
 
   async ubahStatusKaryawan(id: string) {
     const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
-      .innerJoin('karyawan.team', 'team') 
-      .innerJoin('team.project', 'project') 
+      .innerJoin('karyawan.team', 'team')
+      .innerJoin('team.project', 'project')
       .where('project.id = :id', { id })
       .getMany();
     if (karyawan.length > 0) {
       await this.karyawanRepository.save(
         karyawan.map(newStatusKaryawan => {
           newStatusKaryawan.status_project = statusProjectKaryawan.available;
-          return newStatusKaryawan; 
+          return newStatusKaryawan;
         })
       );
     }

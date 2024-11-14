@@ -12,7 +12,7 @@ export class AuthService {
 
     async login(authDto: AuthDto) {
         const user = await this.userService.getUserByUsername(authDto.username);
-        if (user) {
+        if (user) { 
             const salt = user.salt;
             const stringSalt = salt.replace(/-/g, '')
             const inputPassword = authDto.password;
@@ -23,21 +23,33 @@ export class AuthService {
             const isPasswordCorrect = password == hashInputPassword;
             if (user && isPasswordCorrect) {
                 const { password, ...result } = user;
+                const expiry_time = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
                 const payload = { sub: user.id, username: user.username, role: user.role.nama };
                 return {
                     data: {
-                        payload,
+                        user:payload,
                         access_token: await this.jwtService.signAsync(payload, {
                             secret: 'secrettoken1234',
-                            expiresIn: '24h',
+                            expiresIn: '7d',
                         }),
+                        expires_in: expiry_time,
                     },
                     status: 200,
                     message: 'login success'
                 };
             }
-            throw new UnauthorizedException('Invalid password');
+            else{
+                return {
+                    statusCode: 401,
+                    message: 'password salah'
+                }
+            }
         }
-        throw new UnauthorizedException('user tidak ditemukan');
+        else{
+            return {
+                statusCode: 401,
+                message: 'username salah'
+            }
+        }
     }
 }

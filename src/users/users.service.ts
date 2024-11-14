@@ -85,7 +85,7 @@ export class UsersService {
   async findOne(id: string) {
     return await this.usersRepository.findOneOrFail({
       where: { id },
-      select: ['id', 'username', 'email','nama'],
+      select: ['id', 'username', 'email', 'nama'],
     });
   }
 
@@ -137,9 +137,23 @@ export class UsersService {
 
     // Cek apakah password lama yang diinput sesuai
     if (user.password !== hashCurrentPassword) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException({
+        statusCode: 404,
+        message: 'Password saat ini salah, mohon masukkan password dengan benar',
+      });
     }
 
+    if(new_password.length < 8) {
+      throw new BadRequestException({
+        statusCode: 404,
+        message: 'Password Minimal 8 Karakter',
+      });
+    }else if (new_password.length > 20){
+      throw new BadRequestException({
+        statusCode: 404,
+        message: 'Password Tidak Boleh Lebih Dari 20 Karakter',
+      });
+    }
     // Cek apakah konfirmasi password baru sesuai
     if (new_password !== confirm_new_password) {
       throw new BadRequestException('New password and confirmation do not match');
@@ -156,7 +170,6 @@ export class UsersService {
     });
 
     return this.usersRepository.findOneOrFail({ where: { id } });
-
   }
 
   async findTeamLead() {

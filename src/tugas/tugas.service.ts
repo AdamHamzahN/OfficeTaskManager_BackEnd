@@ -221,18 +221,17 @@ export class TugasService {
       .limit(3)
       .getMany();
 
-
     return newTugas;
   }
 
   async getTugasKaryawanByProject(id: string) {
     const tugas = await this.tugasRepository.createQueryBuilder('tugas')
-      .leftJoin('tugas.karyawan', 'karyawan')
-      .leftJoin('karyawan.user', 'user')
-      .where('user.id = :id', { id })
-      .leftJoin('tugas.project', 'project')
-      .andWhere('project.status != :status', { status: statusProject.approved })
-      .select([
+    .leftJoin('tugas.project', 'project') 
+    .leftJoin('tugas.karyawan', 'karyawan') 
+    .leftJoin('karyawan.user', 'user') 
+    .where('user.id = :id', { id }) 
+    .andWhere('project.status != :status', { status: statusProject.approved }) 
+    .select([
         'tugas.id',
         'tugas.nama_tugas',
         'tugas.updated_at',
@@ -240,14 +239,15 @@ export class TugasService {
         'tugas.deadline',
         'project.nama_project',
         'project.status'
-      ])
-      .orderBy('tugas.updated_at', 'DESC')
-      .take(3)
-      .getMany();
+    ])
+    .orderBy('tugas.updated_at', 'DESC') 
+    .take(3)
+    .getMany();
 
 
     const jumlahSelesai = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('karyawan.team','team')
       .leftJoin('karyawan.user', 'user')
       .leftJoin('tugas.project', 'project')
       .where('user.id = :id', { id })
@@ -264,31 +264,35 @@ export class TugasService {
       .andWhere('tugas.status != :statusSelesai', { statusSelesai: statusTugas.approved })
       .getCount();
 
-    const result = await this.tugasRepository.createQueryBuilder('tugas')
-      .leftJoin('tugas.karyawan', 'karyawan')
+    const result = await this.teamRepository.createQueryBuilder('team')
+      .leftJoin('team.karyawan', 'karyawan')
       .leftJoin('karyawan.user', 'user')
-      .leftJoin('tugas.project', 'project')
+      .leftJoin('team.project', 'project')
       .where('user.id = :id', { id })
       .andWhere('project.status != :statusProjectApproved', { statusProjectApproved: statusProject.approved })
-      .select('project.nama_project', 'nama_project') // Alias 'nama_project' untuk kemudahan akses
+      .select(['project.nama_project AS nama_project', 'project.id AS id_project'])
       .getRawOne();
 
     const nama_project = result ? result.nama_project : null;
+    const id_project = result ? result.id_project : null;
 
     return {
       tugas,
       jumlahSelesai,
       jumlahBelumSelesai,
-      nama_project
+      nama_project,
+      id_project
     };
   }
 
-  async getTugasKaryawanByIdUser(id: string,page:number,page_size:number) {
+  async getTugasProjectKaryawanByIdUser(id: string,id_project:string,page:number,page_size:number) {
     const skip = (page - 1) * page_size;
     const [data,count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
+      .leftJoin('tugas.project','project')
       .where('user.id = :id', { id })
+      .andWhere('project.id = :id_project',{id_project})
       .addSelect('user.id', 'user.nama')
       .skip(skip)
       .take(page_size)
@@ -297,14 +301,16 @@ export class TugasService {
     return {data,count};
   }
 
-  async getTugasKaryawanBelumSelesai(id: string, page: number, page_size: number) {
+  async getTugasKaryawanBelumSelesai(id: string,id_project:string, page: number, page_size: number) {
     const skip = (page - 1) * page_size;
     const [data, count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.karyawan', 'karyawan')
+      .leftJoin('tugas.project','project')
       .leftJoinAndSelect('karyawan.user', 'user')
       .where('user.id = :id', { id })
       .andWhere('tugas.status !=:status', { status: statusTugas.approved || statusTugas.done })
-      .addSelect('user.id', 'user.nama')
+      .andWhere('project.id =:id_project',{id_project})
+      .addSelect('user.id', 'user.nama',)
       .skip(skip)
       .take(page_size)
       .orderBy('tugas.updated_at', 'DESC')

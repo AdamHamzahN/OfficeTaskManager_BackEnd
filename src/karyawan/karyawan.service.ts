@@ -48,7 +48,7 @@ export class KaryawanService {
     const passwordHash = this.userService.hashPassword(password, salt);
 
     const user = new User();
-    user.username = username; 
+    user.username = username;
     user.password = passwordHash;
     user.nama = nama;
     user.salt = salt;
@@ -76,8 +76,8 @@ export class KaryawanService {
       .leftJoinAndSelect('karyawan.user', 'user')
       .leftJoinAndSelect('karyawan.job', 'job')
       .skip(skip)
-      .take (page_size)
-      .orderBy('karyawan.created_at','DESC')
+      .take(page_size)
+      .orderBy('karyawan.created_at', 'DESC')
       .getManyAndCount();
     return {
       data,
@@ -160,15 +160,23 @@ export class KaryawanService {
 
   async getKaryawanAvailable() {
     const karyawan = await this.karyawanRepository.createQueryBuilder('karyawan')
-        .leftJoin('karyawan.user', 'user')
-        .leftJoin('karyawan.job', 'job') 
-        .where('karyawan.status_project = :statusProject', { statusProject: statusProject.available}) 
-        .andWhere('user.status = :statusKeaktifan', { statusKeaktifan: StatusKeaktifan.ACTIVE }) 
-        .select(['karyawan.id','user.nama','job.nama_job'])
-        .getMany();
+      .leftJoin('karyawan.user', 'user')
+      .leftJoin('karyawan.job', 'job')
+      .where('karyawan.status_project = :statusProject', { statusProject: statusProject.available })
+      .andWhere('user.status = :statusKeaktifan', { statusKeaktifan: StatusKeaktifan.ACTIVE })
+      .select(['karyawan.id', 'user.nama', 'job.nama_job'])
+      .getMany();
     return karyawan;
-}
+  }
 
+  async getKaryawanByIdUser(id: string) {
+    const data = await this.karyawanRepository.createQueryBuilder('karyawan')
+      .leftJoin('karyawan.user', 'user')
+      .where('user.id =:id', { id: id })
+      .select(['karyawan.id', 'karyawan.nik', 'karyawan.gender', 'karyawan.alamat', 'karyawan.status_project'])
+      .getOne()
+    return { data };
+  }
 
 
 

@@ -231,20 +231,22 @@ export class TugasController {
     return await this.tugasService.getTugasKaryawanByProject(id)
   }
 
-  @Get(':id/karyawan/tugas-karyawan')
+  @Get(':id/karyawan/:id_project/tugas-karyawan')
   async getTugasKaryawanByIdUser(
     @Param('id') id: string,
+    @Param('id_project') id_project: string,
     @Query('page') page: number,
     @Query('page_size') page_size: number
 ) {
-    return await this.tugasService.getTugasKaryawanByIdUser(id,page,page_size);
+    return await this.tugasService.getTugasProjectKaryawanByIdUser(id,id_project,page,page_size);
   }
 
-  @Get(':id/karyawan/tugas-karyawan-belum-selesai')
+  @Get(':id/karyawan/:id_project/tugas-karyawan-belum-selesai')
   async getTugasKaryawanBelumSelesai(
     @Param('id') id: string,
+    @Param('id_project') id_project:string,
     @Query('page') page: number,
     @Query('page_size') page_size: number) {
-    return await this.tugasService.getTugasKaryawanBelumSelesai(id,page,page_size);
+    return await this.tugasService.getTugasKaryawanBelumSelesai(id,id_project,page,page_size);
   }
 }

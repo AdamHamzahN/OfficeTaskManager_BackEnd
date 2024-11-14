@@ -21,7 +21,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
  * url: http://localhost:3222/team/:id/team-project
  * 
  * Update Status Karyawan (bila status project di ubah ke approved)
- * url: http://localhost:3222/team/:id/ubah-status-karyawan
+ * url: http://localhost:3222/team/:id/update-status-karyawan
  */
 
 @Controller('team')
@@ -67,8 +67,10 @@ export class TeamController {
   @Get(':id/team-project')
   async teamProject(
     @Param('id') id: string,
+    @Query('page') page?: number,
+    @Query('page_size') page_size?: number,
   ) {
-    return await this.teamService.teamProject(id);
+    return await this.teamService.teamProject(id,page,page_size);
   }
 
   @Put(':id/update-status-karyawan')
