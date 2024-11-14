@@ -254,10 +254,12 @@ export class ProjectController {
    */
   @Get()
   async getProjectByStatus(
-    @Query('status') status?: string,
+    @Query('status') status: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number
   ) {
     if (status) {
-      return await this.projectService.getProjectByStatus(status as statusProject);
+      return await this.projectService.getProjectByStatus(status as statusProject, page, page_size);
     } else {
       return await this.projectService.findAll();
     }
