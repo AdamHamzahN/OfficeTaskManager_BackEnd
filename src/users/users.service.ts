@@ -69,9 +69,27 @@ export class UsersService {
    * Memanggil Semua User
    * 
    */
-  async findAll() {
+  async findAll(page: number, page_size: number) {
+    const skip = (page - 1) * page_size;
     const [data, count] = await this.usersRepository.createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role').getManyAndCount();
+      .leftJoin('user.role', 'role')
+      .addSelect(['user', 'role.id', 'role.nama'])
+      .skip(skip)
+      .take(page_size)
+      .orderBy('user.created_at', 'DESC')
+      .getManyAndCount();
+    return {
+      data,
+      count,
+    };
+  }
+
+  async getAll() {
+    const [data, count] = await this.usersRepository.createQueryBuilder('user')
+      .leftJoin('user.role', 'role')
+      .addSelect(['user', 'role.id', 'role.nama'])
+      .orderBy('user.created_at', 'DESC')
+      .getManyAndCount();
     return {
       data,
       count,
@@ -85,7 +103,7 @@ export class UsersService {
   async findOne(id: string) {
     return await this.usersRepository.findOneOrFail({
       where: { id },
-      select: ['id', 'username', 'email', 'nama','status'],
+      select: ['id', 'username', 'email', 'nama', 'status'],
     });
   }
 
@@ -143,12 +161,12 @@ export class UsersService {
       });
     }
 
-    if(new_password.length < 8) {
+    if (new_password.length < 8) {
       throw new BadRequestException({
         statusCode: 404,
         message: 'Password Minimal 8 Karakter',
       });
-    }else if (new_password.length > 20){
+    } else if (new_password.length > 20) {
       throw new BadRequestException({
         statusCode: 404,
         message: 'Password Tidak Boleh Lebih Dari 20 Karakter',
@@ -172,19 +190,34 @@ export class UsersService {
     return this.usersRepository.findOneOrFail({ where: { id } });
   }
 
-  async findTeamLead() {
-    return await this.usersRepository.createQueryBuilder('user')
+  async findTeamLead(page: number, page_size: number) {
+    const skip = (page - 1) * page_size;
+    const [data, count] = await this.usersRepository.createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .where('role.nama = :nama', { nama: 'Team Lead' })
-      .getMany();
+      .skip(skip)
+      .take(page_size)
+      .orderBy('user.created_at', 'DESC')
+      .getManyAndCount();
+
+    return { data, count };
+  }
+
+  async findTeamLeadAll() {
+    const [data, count] = await this.usersRepository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
+      .where('role.nama = :nama', { nama: 'Team Lead' })
+      .getManyAndCount();
+
+    return { data, count }
   }
 
   async findTeamLeadActive() {
     return await this.usersRepository.createQueryBuilder('user')
-    .leftJoinAndSelect('user.role', 'role')
-    .where('role.nama = :nama', { nama: 'Team Lead' })
-    .andWhere('status = :status', {status: StatusKeaktifan.ACTIVE})
-    .getMany();
+      .leftJoinAndSelect('user.role', 'role')
+      .where('role.nama = :nama', { nama: 'Team Lead' })
+      .andWhere('status = :status', { status: StatusKeaktifan.ACTIVE })
+      .getMany();
   }
 
   async updateStatusKeaktifan(id: string, updateStatusKeaktifan: UpdateStatusKeaktifan) {

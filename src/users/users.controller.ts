@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   HttpStatus,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -59,8 +60,18 @@ export class UsersController {
    * Memanggil semua user
    */
   @Get()
-  async listUser() {
-    const { data, count } = await this.usersService.findAll();
+  async listUser(@Query('page') page: number, @Query('page_size') page_size: number) {
+    let data = [];
+    let count = 0;
+    if (page && page_size) {
+      const result = await this.usersService.findAll(page, page_size);
+      data = result.data;
+      count = result.count;
+    } else {
+      const result = await this.usersService.getAll();
+      data = result.data;
+      count = result.count;
+    }
     return {
       data,
       count,
@@ -113,10 +124,24 @@ export class UsersController {
    * Memanggil role team lead
    */
   @Get('team-lead')
-  async getTeamLead() {
-    return await this.usersService.findTeamLead();
-      // statusCode: HttpStatus.OK,
-      // message: 'success',
+  async getTeamLead(@Query('page') page: number, @Query('page_size') page_size: number) {
+    let data = [];
+    let count = 0;
+    if(page && page_size){
+      const result = await this.usersService.findTeamLead(page,page_size);
+      data = result.data;
+      count = result.count;
+    }else{
+      const result = await this.usersService.findTeamLeadAll();
+      data = result.data;
+      count = result.count;
+    }
+    return {
+      data,
+      count,
+      statusCode: HttpStatus.OK,
+      message: 'success'
+    }
   }
 
   @Get('team-lead/active')
@@ -137,8 +162,8 @@ export class UsersController {
    * Update Status Keaktifan User
    */
   @Put(':id/update-status-keaktifan')
-  async updateStatusKeaktifan(@Param('id') id:string,@Body()updateStatusKeaktifan:UpdateStatusKeaktifan){
-    const data = await this.usersService.updateStatusKeaktifan(id,updateStatusKeaktifan);
+  async updateStatusKeaktifan(@Param('id') id: string, @Body() updateStatusKeaktifan: UpdateStatusKeaktifan) {
+    const data = await this.usersService.updateStatusKeaktifan(id, updateStatusKeaktifan);
     return {
       data,
       statusCode: HttpStatus.OK,
