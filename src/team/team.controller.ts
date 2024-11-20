@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query, Put, UseGuards } from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
+import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
 /**
  * Menambah Team
  * url: http://localhost:3222/team/tambah [ok]
@@ -24,18 +25,22 @@ import { CreateTeamDto } from './dto/create-team.dto';
  * url: http://localhost:3222/team/:id/update-status-karyawan
  */
 
+@UseGuards(JwtAuthGuard)
 @Controller('team')
 export class TeamController {
   constructor(private readonly teamService: TeamService) { }
 
   @Post('tambah')
   async create(@Body() createTeamDto: CreateTeamDto) {
-    const data = await this.teamService.create(createTeamDto);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
+    try {
+      await this.teamService.create(createTeamDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   @Get()
@@ -60,8 +65,8 @@ export class TeamController {
   }
 
   @Get(':id/history')
-  async history(@Param('id') id: string,@Query('search') search: string) {
-      return await this.teamService.history(id,search);
+  async history(@Param('id') id: string, @Query('search') search: string) {
+    return await this.teamService.history(id, search);
   }
 
   @Get(':id/team-project')
@@ -70,14 +75,17 @@ export class TeamController {
     @Query('page') page?: number,
     @Query('page_size') page_size?: number,
   ) {
-    return await this.teamService.teamProject(id,page,page_size);
+    return await this.teamService.teamProject(id, page, page_size);
   }
 
   @Put(':id/update-status-karyawan')
   async ubahStatusKaryawan(@Param('id') id: string) {
-    return await this.teamService.ubahStatusKaryawan(id);
+    try {
+      return await this.teamService.ubahStatusKaryawan(id);
+    } catch (error) {
+      return error;
+    }
   }
-
 }
 
 

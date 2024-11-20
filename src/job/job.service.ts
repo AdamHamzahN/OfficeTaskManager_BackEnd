@@ -45,7 +45,6 @@ export class JobService {
   
   async getAll(){
     const data = await this.jobRepository.find();
-
     return{
       data
     }

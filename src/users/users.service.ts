@@ -193,7 +193,16 @@ export class UsersService {
   async findTeamLead(page: number, page_size: number) {
     const skip = (page - 1) * page_size;
     const [data, count] = await this.usersRepository.createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
+      .leftJoin('user.role', 'role')
+      .select([
+        'user.id',
+        'user.nama',
+        'user.status', 
+        'user.created_at', 
+        'user.updated_at',
+        'user.email',
+        'role.nama',
+      ])
       .where('role.nama = :nama', { nama: 'Team Lead' })
       .skip(skip)
       .take(page_size)
@@ -214,7 +223,8 @@ export class UsersService {
 
   async findTeamLeadActive() {
     return await this.usersRepository.createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
+      .leftJoin('user.role', 'role')
+      .select(['user.id','user.nama','role.nama'])
       .where('role.nama = :nama', { nama: 'Team Lead' })
       .andWhere('status = :status', { status: StatusKeaktifan.ACTIVE })
       .getMany();

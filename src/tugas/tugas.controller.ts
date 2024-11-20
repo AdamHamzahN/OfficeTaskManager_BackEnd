@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, BadRequestException, UploadedFile, HttpStatus, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, BadRequestException, UploadedFile, HttpStatus, Put, Query, UseGuards } from '@nestjs/common';
 import { TugasService } from './tugas.service';
 import { CreateTugasDto } from './dto/create-tugas.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { UploadFileTugas } from './dto/upload-file-tugas';
+import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
 
 
 /**
@@ -31,6 +32,7 @@ import { UploadFileTugas } from './dto/upload-file-tugas';
  * url:http://localhost:3222/tugas/:idKaryawan/project/:idProject/count-tugas
  */
 
+@UseGuards(JwtAuthGuard)
 @Controller('tugas')
 export class TugasController {
   constructor(private readonly tugasService: TugasService
@@ -86,14 +88,13 @@ export class TugasController {
   @Post('tambah')
   async createTugas(@Body() createTugasDto: CreateTugasDto) {
     try {
-      const data = await this.tugasService.create(createTugasDto);
+      await this.tugasService.create(createTugasDto);
       return {
-        data,
         statusCode: 201,
         message: 'success',
       };
-    } catch (e) {
-      return e;
+    } catch (error) {
+      return error;
     }
   }
 
@@ -129,12 +130,15 @@ export class TugasController {
    */
   @Put(':id/update-status-tugas')
   async updateStatusProject(@Param('id') id: string, @Body() updateStatusTugasDto: UpdateStatusTugasDto) {
-    const data = await this.tugasService.updateStatusTugas(id, updateStatusTugasDto);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
+    try {
+      await this.tugasService.updateStatusTugas(id, updateStatusTugasDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   /**
@@ -170,11 +174,14 @@ export class TugasController {
   async uploadFileHasil(@Param('id') id: string,
     @Body() uploadFileBukti: UploadFileBukti,
     @UploadedFile() file: Express.Multer.File) {
-    const data = await this.tugasService.uploadFileBukti(id, uploadFileBukti, file);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
+    try {
+      await this.tugasService.uploadFileBukti(id, uploadFileBukti, file);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    } catch (error) {
+      return error;
     }
   }
 
@@ -187,7 +194,7 @@ export class TugasController {
     @Query('page') page: number,
     @Query('page_size') page_size: number
   ) {
-    return await this.tugasService.getTugasByKaryawan(id,page,page_size);
+    return await this.tugasService.getTugasByKaryawan(id, page, page_size);
   }
 
   @Get('team-lead/:id/update-terbaru')
@@ -218,7 +225,15 @@ export class TugasController {
 
   @Put(':id/update-note')
   async updateNote(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    return await this.tugasService.updateNote(id, updateNoteDto);
+    try{
+      await this.tugasService.updateNote(id, updateNoteDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    }catch(error){
+      return error;
+    }
   }
 
   @Get(':id/karyawan/tugas-terbaru')
@@ -237,16 +252,16 @@ export class TugasController {
     @Param('id_project') id_project: string,
     @Query('page') page: number,
     @Query('page_size') page_size: number
-) {
-    return await this.tugasService.getTugasProjectKaryawanByIdUser(id,id_project,page,page_size);
+  ) {
+    return await this.tugasService.getTugasProjectKaryawanByIdUser(id, id_project, page, page_size);
   }
 
   @Get(':id/karyawan/:id_project/tugas-karyawan-belum-selesai')
   async getTugasKaryawanBelumSelesai(
     @Param('id') id: string,
-    @Param('id_project') id_project:string,
+    @Param('id_project') id_project: string,
     @Query('page') page: number,
     @Query('page_size') page_size: number) {
-    return await this.tugasService.getTugasKaryawanBelumSelesai(id,id_project,page,page_size);
+    return await this.tugasService.getTugasKaryawanBelumSelesai(id, id_project, page, page_size);
   }
 }

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Query, UseGuards, HttpStatus } from '@nestjs/common';
 import { JobService } from './job.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
 
 /**
  * Memanggil semua job
@@ -16,35 +17,45 @@ import { UpdateJobDto } from './dto/update-job.dto';
  * Mengupdate Job
  * url: http://localhost:3222/job/:id/update [ok] 
  */
+
+@UseGuards(JwtAuthGuard)
 @Controller('job')
 export class JobController {
-  constructor(private readonly jobService: JobService) {}
+  constructor(private readonly jobService: JobService) { }
 
-   /**
-   * Memanggil semua job
-   */
+  /**
+  * Memanggil semua job
+  */
   @Get()
-  async listJob(@Query('page') page:number,@Query('page_size') page_size:number) {
-      return await this.jobService.list(page,page_size);   
+  async listJob(@Query('page') page: number, @Query('page_size') page_size: number) {
+    return await this.jobService.list(page, page_size);
   }
 
   @Get('/get-all')
-  async getJob(){
+  async getJob() {
     return await this.jobService.getAll()
   }
-   /**
-   * Membuat job baru
-   */
+  /**
+  * Membuat job baru
+  */
   @Post('tambah')
-  create(@Body() createJobDto: CreateJobDto) {
-    return this.jobService.create(createJobDto);
+  async create(@Body() createJobDto: CreateJobDto) {
+    try {
+      await this.jobService.create(createJobDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    } catch (error) {
+      return error;
+    }
   }
 
-    /**
-  * memanggil job berdasarkan id
-  */
+  /**
+* memanggil job berdasarkan id
+*/
   @Get(':id/detail')
-  getJobById(@Param('id') id: string) {
+  async getJobById(@Param('id') id: string) {
     return this.jobService.getJobById(id);
   }
 
@@ -52,9 +63,16 @@ export class JobController {
    * Meng-update job
    */
   @Put(':id/update')
-  updateJob(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
-    return this.jobService.update(id, updateJobDto);
+  async updateJob(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
+    try {
+      await this.jobService.update(id, updateJobDto);
+      return{
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    }catch(error){
+      return error;
+    }
   }
 
-  
 }

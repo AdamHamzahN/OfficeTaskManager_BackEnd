@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseUUIDPipe, Put, HttpException, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseUUIDPipe, Put, HttpException, Query, UseGuards } from '@nestjs/common';
 import { KaryawanService } from './karyawan.service';
 import { CreateKaryawanDto } from './dto/create-karyawan.dto';
 import { UpdateKaryawanDto } from './dto/update-karyawan.dto';
 import { EditJobDto } from './dto/edit-job-karyawan.dto';
 import { UpdateStatusKaryawan } from './dto/update-status.dto';
 import { UpdateStatusKeaktifan } from '#/users/dto/update-status-keaktifan.dto';
+import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
 /**
  * Memanggil semua karyawan
  * url: http://localhost:3222/karyawan [ok]
@@ -28,20 +29,18 @@ import { UpdateStatusKeaktifan } from '#/users/dto/update-status-keaktifan.dto';
  * url: http://localhost:3222/karyawan/:id/update-status-keaktifan [ok]
  * 
  */
+
+@UseGuards(JwtAuthGuard)
 @Controller('karyawan')
 export class KaryawanController {
   constructor(private readonly karyawanService: KaryawanService) { }
-  
+
   /**
    * Memanggil semua karyawan
    */
   @Get()
-  async findAll(@Query('page') page:number,@Query('page_size') page_size:number) {
-    return {
-      data : await this.karyawanService.findAll(page,page_size),
-      statusCode: HttpStatus.OK,
-      message:'success',
-    };
+  async findAll(@Query('page') page: number, @Query('page_size') page_size: number) {
+    return await this.karyawanService.findAll(page, page_size);
   }
 
   /**
@@ -49,12 +48,15 @@ export class KaryawanController {
    */
   @Post('tambah')
   async createKaryawan(@Body() createKaryawanDto: CreateKaryawanDto) {
-    const karyawan = await this.karyawanService.createKaryawan(createKaryawanDto);
-    return {
-      data: karyawan,
-      statusCode: HttpStatus.CREATED,
-      message: 'success',
-    };
+    try {
+      await this.karyawanService.createKaryawan(createKaryawanDto);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   /**
@@ -73,11 +75,15 @@ export class KaryawanController {
    */
   @Put(':id/update-job')
   async updateJob(@Param('id') id: string, @Body() editJobDto: EditJobDto) {
-    return {
-      data: await this.karyawanService.updateJob(id, editJobDto),
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
+    try {
+      await this.karyawanService.updateJob(id, editJobDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   /**
@@ -85,22 +91,30 @@ export class KaryawanController {
    */
   @Put(':id/update-profile')
   async updateProfileKaryawan(@Param('id') id: string, @Body() updateKaryawanDto: UpdateKaryawanDto) {
-    return {
-      data: await this.karyawanService.updateProfile(id, updateKaryawanDto),
-      statusCode: HttpStatus.OK ,
-      message: 'success',
-    };
+    try {
+      await this.karyawanService.updateProfile(id, updateKaryawanDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
-  
+
   /**
    * Update Status Project (available / unavailable)
    */
   @Put(':id/update-status-project')
-  async UpdateStatusProject(@Param('id') id: string, @Body() updateStatus:UpdateStatusKaryawan){
-    return {
-      data: await this.karyawanService.updateStatusProject(id, updateStatus),
-      statusCode: HttpStatus.OK,
-      message:'success',
+  async UpdateStatusProject(@Param('id') id: string, @Body() updateStatus: UpdateStatusKaryawan) {
+    try {
+      await this.karyawanService.updateStatusProject(id, updateStatus);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    } catch (error) {
+      return error
     }
   }
 
@@ -108,22 +122,25 @@ export class KaryawanController {
    * Update Status Keaktifan (active / inactive)
    */
   @Put(':id/update-status-keaktifan')
-  async UpdateStatusKaryawan(@Param('id') id: string, @Body() status:UpdateStatusKeaktifan){
-    return {
-      data: await this.karyawanService.updateStatusKaryawan(id, status),
-      statusCode: HttpStatus.OK,
-      message:'success',
+  async UpdateStatusKaryawan(@Param('id') id: string, @Body() status: UpdateStatusKeaktifan) {
+    try{
+      await this.karyawanService.updateStatusKaryawan(id, status);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    }catch(error){
+      return error;
     }
   }
 
   @Get('/status-available')
-  async getKaryawanAvailable(){
-      return this.karyawanService.getKaryawanAvailable()
+  async getKaryawanAvailable() {
+    return this.karyawanService.getKaryawanAvailable()
   }
 
   @Get(':id/karyawan-by-id-user')
-  async getKaryawanByIdUser(@Param('id') id : string){
+  async getKaryawanByIdUser(@Param('id') id: string) {
     return this.karyawanService.getKaryawanByIdUser(id);
   }
-
 }

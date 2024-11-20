@@ -73,8 +73,18 @@ export class KaryawanService {
   async findAll(page: number, page_size: number) {
     const skip = (page - 1) * page_size
     const [data, count] = await this.karyawanRepository.createQueryBuilder('karyawan')
-      .leftJoinAndSelect('karyawan.user', 'user')
-      .leftJoinAndSelect('karyawan.job', 'job')
+      .leftJoin('karyawan.user', 'user')
+      .leftJoin('karyawan.job', 'job')
+      .select([
+        'karyawan.id',
+        'karyawan.nik',
+        'karyawan.status_project',
+        'karyawan.created_at',
+        'user.id',
+        'user.nama',
+        'user.status',
+        'job.nama_job'
+        ])
       .skip(skip)
       .take(page_size)
       .orderBy('karyawan.created_at', 'DESC')

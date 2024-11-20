@@ -63,6 +63,7 @@ import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
  * url: http://localhost:3222/project/:id/update-note
  */
 
+@UseGuards(JwtAuthGuard)
 @Controller('project')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) { }
@@ -106,31 +107,29 @@ export class ProjectController {
     @Param('id') id: string,
     @Body() UploadFileProject: UploadFileProject,
     @UploadedFile() file: Express.Multer.File) {
-    const data = await this.projectService.uploadFileProject(id, UploadFileProject, file);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
+    try {
+      await this.projectService.uploadFileProject(id, UploadFileProject, file);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    } catch (error) {
+      return error;
     }
   }
 
   @Post('/tambah')
   async createProject(@UploadedFile() file: Express.Multer.File, @Body() createProjectDto: CreateProjectDto) {
-    return await this.projectService.create(createProjectDto);
+    try {
+      await this.projectService.create(createProjectDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    } catch (error) {
+      return error;
+    }
   }
-
-  /**
-   * Memanggil semua Project
-   */
-  // @Get()
-  // async listProject() {
-  //   const data = await this.projectService.findAll();
-  //   return {
-  //     data,
-  //     statusCode: HttpStatus.OK,
-  //     message: 'success',
-  //   };
-  // }
 
   /**
    * Memanggil project berdasarkan Id
@@ -149,12 +148,15 @@ export class ProjectController {
    */
   @Put(':id/update-status')
   async updateStatusProject(@Param('id') id: string, @Body() updateStatusProjectDto: UpdateStatusProject) {
-    const data = await this.projectService.updateStatus(id, updateStatusProjectDto);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
+    try {
+      await this.projectService.updateStatus(id, updateStatusProjectDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   /**
@@ -191,11 +193,14 @@ export class ProjectController {
   async uploadFileHasil(@Param('id') id: string,
     @Body() uploadFileHasil: UploadHasilProject,
     @UploadedFile() file: Express.Multer.File) {
-    const data = await this.projectService.uploadHasil(id, uploadFileHasil, file);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
+    try {
+      await this.projectService.uploadHasil(id, uploadFileHasil, file);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    } catch (error) {
+      return error;
     }
   }
 
@@ -204,12 +209,16 @@ export class ProjectController {
    */
   @Put(':id/update-nama-team')
   async updateNamaTeam(@Param('id') id: string, @Body() updateNamaTeam: UpdateNamaTeamDto) {
-    const data = await this.projectService.updateNamaTeam(id, updateNamaTeam);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
+    try {
+      await this.projectService.updateNamaTeam(id, updateNamaTeam);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+    } catch (error) {
+      return error;
     }
+
   }
 
   /**
@@ -243,7 +252,7 @@ export class ProjectController {
 
   /**
    * Menghitung jumlah project selesai ( approved )
-   */ 
+   */
   @Get('count-selesai')
   async getProjectSelesai() {
     return await this.projectService.getProjectSelesai();
@@ -310,7 +319,7 @@ export class ProjectController {
     @Query('page') page: number,
     @Query('page_size') page_size: number
   ) {
-    return await this.projectService.getProjectSelesaiKaryawan(id,page,page_size);
+    return await this.projectService.getProjectSelesaiKaryawan(id, page, page_size);
   }
 
   @Get(`karyawan/:id/project-dikerjakan`)
@@ -319,8 +328,17 @@ export class ProjectController {
   }
 
   @Put(':id/update-note')
-  async updateNote(@Param('id') id:string, @Body() UpdateNoteDto: UpdateNoteDto ) {
-    return await this.projectService.updateNote(id, UpdateNoteDto)
+  async updateNote(@Param('id') id: string, @Body() UpdateNoteDto: UpdateNoteDto) {
+    try {
+      await this.projectService.updateNote(id, UpdateNoteDto)
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      }
+
+    } catch (error) {
+      return error;
+    }
   }
 
 }

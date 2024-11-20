@@ -10,12 +10,14 @@ import {
   HttpStatus,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SuperAdminUpdatePasswordDto } from './dto/super-admin-update-password.dto';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 import { UpdateStatusKeaktifan } from './dto/update-status-keaktifan.dto';
+import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
 /**
  * Menambah User Baru (Hanya untuk Super Admin)
  * url: http://localhost:3222/users/tambah-team-lead [ok]
@@ -39,7 +41,7 @@ import { UpdateStatusKeaktifan } from './dto/update-status-keaktifan.dto';
  * url: http://localhost:3222/users/:id/update-status-keaktifan [ok]
  */
 
-
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -49,11 +51,15 @@ export class UsersController {
    */
   @Post('tambah-team-lead')
   async createTeamLead(@Body() createUserDto: CreateUserDto) {
-    return {
-      data: await this.usersService.createTeamLead(createUserDto),
-      statusCode: HttpStatus.CREATED,
-      message: 'success',
-    };
+    try {
+      await this.usersService.createTeamLead(createUserDto);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   /**
@@ -100,11 +106,15 @@ export class UsersController {
     @Param('id') id: string,
     @Body() superAdminUpdatePasswordDto: SuperAdminUpdatePasswordDto,
   ) {
-    return {
-      data: await this.usersService.superAdminUpdatePassword(id, superAdminUpdatePasswordDto),
-      statusCode: HttpStatus.CREATED,
-      message: 'success',
-    };
+    try {
+      await this.usersService.superAdminUpdatePassword(id, superAdminUpdatePasswordDto);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   /**
@@ -112,12 +122,15 @@ export class UsersController {
    */
   @Put(':id/update-password')
   async updatePasswordUser(@Param('id') id: string, @Body() updatePasswordUserDto: UpdatePasswordUserDto) {
-    const data = await this.usersService.updatePasswordUser(id, updatePasswordUserDto);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
+    try {
+      await this.usersService.updatePasswordUser(id, updatePasswordUserDto);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 
   /**
@@ -127,11 +140,11 @@ export class UsersController {
   async getTeamLead(@Query('page') page: number, @Query('page_size') page_size: number) {
     let data = [];
     let count = 0;
-    if(page && page_size){
-      const result = await this.usersService.findTeamLead(page,page_size);
+    if (page && page_size) {
+      const result = await this.usersService.findTeamLead(page, page_size);
       data = result.data;
       count = result.count;
-    }else{
+    } else {
       const result = await this.usersService.findTeamLeadAll();
       data = result.data;
       count = result.count;
@@ -149,25 +162,19 @@ export class UsersController {
     return await this.usersService.findTeamLeadActive();
   }
 
-  // @Get('karyawan')
-  // async getKaryawan() {
-  //   return {
-  //     data: await this.usersService.findKaryawan(),
-  //     statusCode: HttpStatus.OK,
-  //     message: 'success',
-  //   }
-  // }
-
   /**
    * Update Status Keaktifan User
    */
   @Put(':id/update-status-keaktifan')
   async updateStatusKeaktifan(@Param('id') id: string, @Body() updateStatusKeaktifan: UpdateStatusKeaktifan) {
-    const data = await this.usersService.updateStatusKeaktifan(id, updateStatusKeaktifan);
-    return {
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'success',
-    };
+    try {
+      await this.usersService.updateStatusKeaktifan(id, updateStatusKeaktifan);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 }

@@ -185,8 +185,19 @@ export class ProjectService {
   async getProjectByStatus(status: statusProject, page: number, page_size: number) {
     const skip = (page - 1) * page_size;
     const [data, count] = await this.projectRepository
-      .createQueryBuilder('project').leftJoinAndSelect('project.user', 'user')
+      .createQueryBuilder('project')
+      .leftJoin('project.user', 'user')
       .where('project.status = :status', { status: status })
+      .select([
+        'project.id',
+        'project.nama_project',
+        'project.status',
+        'project.created_at',
+        'project.start_date',
+        'project.end_date',
+        'user.id',
+        'user.nama',
+      ])
       .skip(skip)
       .take(page_size)
       .orderBy('project.created_at', 'DESC')
