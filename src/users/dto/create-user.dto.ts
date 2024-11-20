@@ -12,7 +12,7 @@ export class CreateUserDto {
     password?: string;
 
     @IsNotEmpty()
-    @IsEmail()
+    @IsEmail({},{ message: 'Email harus berupa format email yang valid' })
     email: string;
 
     @IsNotEmpty()

@@ -161,10 +161,10 @@ export class UsersService {
       });
     }
 
-    if (new_password.length < 8) {
+    if (new_password.length < 6) {
       throw new BadRequestException({
         statusCode: 404,
-        message: 'Password Minimal 8 Karakter',
+        message: 'Password Minimal 6 Karakter',
       });
     } else if (new_password.length > 20) {
       throw new BadRequestException({

@@ -10,7 +10,7 @@ export class CreateKaryawanDto {
     password?: string;
 
     @IsNotEmpty({message:'Email tidak boleh kosong'})
-    @IsEmail()
+    @IsEmail({},{ message: 'Email harus berupa format email yang valid' })
     email: string;
 
     @IsNotEmpty({message:'Nama tidak boleh kosong'})
