@@ -30,11 +30,13 @@ import { JwtAuthGuard } from '#/auth/jwt-auth.guard';
 export class TeamController {
   constructor(private readonly teamService: TeamService) { }
 
+  
   @Post('tambah')
   async create(@Body() createTeamDto: CreateTeamDto) {
     try {
-      await this.teamService.create(createTeamDto);
+      const data  = await this.teamService.create(createTeamDto);
       return {
+        id: data.karyawan,
         statusCode: HttpStatus.OK,
         message: 'success',
       };
