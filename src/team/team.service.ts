@@ -4,8 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Team } from './entities/team.entity';
 import { Repository } from 'typeorm';
 import { Karyawan, statusProject as statusProjectKaryawan } from '#/karyawan/entities/karyawan.entity';
-import { Project, statusProject } from '#/project/entities/project.entity';
-import { TugasService } from '#/tugas/tugas.service';
+import { statusProject } from '#/project/entities/project.entity';
 
 
 @Injectable()
@@ -70,27 +69,35 @@ export class TeamService {
       .getMany();
   }
 
-  async history(id: string, search: string) {
-    const data = await this.teamRepository.createQueryBuilder('team')
+  async history(id: string, page: number, page_size: number, search: string) {
+    const skip = (page - 1) * page_size
+    const history = await this.teamRepository.createQueryBuilder('team')
       .leftJoinAndSelect('team.karyawan', 'karyawan')
       .leftJoinAndSelect('karyawan.user', 'user')
       .leftJoinAndSelect('team.project', 'project')
       .leftJoinAndSelect('project.tugas', 'tugas')
       .where('user.id = :id', { id });
-
+    
+    // bila search tidak null atau undifined (tidak kosong) maka filter berdasarkan search
     if (search) {
-      data.andWhere('project.nama_project LIKE :search', { search: `%${search}%` });
+      history.andWhere('project.nama_project ILIKE :search', { search: `%${search}%` });
     }
 
-    data.orderBy('team.created_at', 'DESC');
-    const result = await data.getMany();
+    // Pagination
+    history.skip(skip).take(page_size).orderBy('team.created_at', 'DESC');
 
+    //destructuring menjadi data dan count
+    const [ data , count] = await history.getManyAndCount();
+
+    //memformat hasil
     const formattedResult = {
-      data: result.map(item => ({
+      //menampilkan project
+      data: data.map(item => ({
         project: {
           id: item.project.id,
           nama_project: item.project.nama_project,
         },
+        //menampilkan tugas
         tugas: item.project.tugas
           .filter(t => t.status === 'done' || t.status === 'redo')
           .map(t => ({
@@ -101,34 +108,34 @@ export class TeamService {
       }))
     };
 
-    return formattedResult;
+    return { data:formattedResult.data , count };
   }
 
 
   async teamProject(id: string, page?: number, page_size?: number) {
     let skip;
     if (page != null && page_size != null) {
-        skip = (page - 1) * page_size;
+      skip = (page - 1) * page_size;
     }
     const query = this.teamRepository.createQueryBuilder('team')
-        .leftJoin('team.project', 'project')
-        .addSelect('project.id' )
-        .leftJoin('team.karyawan', 'karyawan')
-        .addSelect(['karyawan.id','karyawan.nik'])
-        .leftJoin('karyawan.user', 'user')
-        .addSelect('user.nama')
-        .leftJoin('karyawan.job', 'job')
-        .addSelect('job.nama_job')
-        .where('project.id = :id', { id });
+      .leftJoin('team.project', 'project')
+      .addSelect('project.id')
+      .leftJoin('team.karyawan', 'karyawan')
+      .addSelect(['karyawan.id', 'karyawan.nik'])
+      .leftJoin('karyawan.user', 'user')
+      .addSelect('user.nama')
+      .leftJoin('karyawan.job', 'job')
+      .addSelect('job.nama_job')
+      .where('project.id = :id', { id });
 
     if (skip != null && page_size != null) {
-        query.skip(skip).take(page_size);
+      query.skip(skip).take(page_size);
     }
 
     const [data, count] = await query.getManyAndCount();
 
     return { data, count };
-}
+  }
 
 
   async ubahStatusKaryawan(id: string) {
