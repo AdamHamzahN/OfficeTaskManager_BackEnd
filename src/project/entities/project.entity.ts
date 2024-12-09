@@ -1,7 +1,6 @@
 import { Team } from "#/team/entities/team.entity";
 import { Tugas } from "#/tugas/entities/tugas.entity";
 import { User } from "#/users/entities/user.entity";
-import { date } from "joi";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export enum statusProject{
