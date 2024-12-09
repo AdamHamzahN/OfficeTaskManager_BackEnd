@@ -88,8 +88,9 @@ export class TugasController {
   @Post('tambah')
   async createTugas(@Body() createTugasDto: CreateTugasDto) {
     try {
-      await this.tugasService.create(createTugasDto);
+      const createTugas = await this.tugasService.create(createTugasDto);
       return {
+        data: createTugas,
         statusCode: 201,
         message: 'success',
       };

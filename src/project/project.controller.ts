@@ -121,8 +121,9 @@ export class ProjectController {
   @Post('/tambah')
   async createProject(@UploadedFile() file: Express.Multer.File, @Body() createProjectDto: CreateProjectDto) {
     try {
-      await this.projectService.create(createProjectDto);
+      const createproject = await this.projectService.create(createProjectDto);
       return {
+        id:createproject.id,
         statusCode: HttpStatus.OK,
         message: 'success',
       }
