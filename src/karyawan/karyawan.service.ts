@@ -83,6 +83,7 @@ export class KaryawanService {
         'user.id',
         'user.nama',
         'user.status',
+        'job.id',
         'job.nama_job'
         ])
       .skip(skip)
