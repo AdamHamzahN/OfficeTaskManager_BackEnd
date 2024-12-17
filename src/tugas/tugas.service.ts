@@ -188,8 +188,9 @@ export class TugasService {
     return { data, count };
   }
 
-  async getTugasDoneByProject(id: string) {
-    const tugas = await this.tugasRepository.createQueryBuilder('tugas')
+  async getTugasDoneByProject(id: string,page:number,page_size: number) {
+    const skip = (page - 1) * page_size;
+    const [data,count] = await this.tugasRepository.createQueryBuilder('tugas')
       .leftJoin('tugas.project', 'project')
       .leftJoin('tugas.karyawan', 'karyawan')
       .leftJoin('karyawan.user', 'user')
@@ -200,9 +201,12 @@ export class TugasService {
         'project.id', 'project.nama_project',
         'karyawan.id', 'user.nama',
       ])
-      .getMany();
+      .skip(skip)
+      .take(page_size)
+      .orderBy('tugas.updated_at', 'DESC')
+      .getManyAndCount();
 
-    return tugas;
+    return {data,count};
   }
 
   async updateNote(id: string, updateNoteDto: UpdateNoteDto) {

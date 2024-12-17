@@ -220,19 +220,22 @@ export class TugasController {
 
 
   @Get(':id/tugas-selesai')
-  async getTugasDoneByID(@Param('id') id: string) {
-    return await this.tugasService.getTugasDoneByProject(id);
+  async getTugasDoneByID(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('page_size') page_size: number) {
+    return await this.tugasService.getTugasDoneByProject(id,page,page_size);
   }
 
   @Put(':id/update-note')
   async updateNote(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    try{
+    try {
       await this.tugasService.updateNote(id, updateNoteDto);
       return {
         statusCode: HttpStatus.OK,
         message: 'success',
       }
-    }catch(error){
+    } catch (error) {
       return error;
     }
   }
